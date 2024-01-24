@@ -15,6 +15,28 @@ from Batteries.figures           import *
 from Batteries.knobs_and_buttons import * 
 from Batteries.control_panels    import * 
 
+# *** to remove **** 
+
+import datetime as dt
+df = pd.read_csv("Urban_Park_Ranger_Animal_Condition_Response.csv")  # https://drive.google.com/file/d/1m63TNoZdDUtH5XhK-mc4kDFzO9j97eWW/view?usp=sharing
+
+#------------------------------------------------------------------------------
+# Drop rows w/ no animals found or calls w/ varied age groups
+df = df[(df['# of Animals']>0) & (df['Age']!='Multiple')]
+
+# Create column for month from time call made to Ranger
+df['Month Call Made'] = pd.to_datetime(df['Date and Time of initial call'])
+df['Month Call Made'] = df['Month Call Made'].dt.strftime('%m')
+df.sort_values('Month Call Made', inplace=True)
+df['Month Call Made'] = df['Month Call Made'].replace({"01":"January","02":"February","03":"March",
+                                                       "04":"April","05":"May","06":"June",
+                                                       "07":"July","08":"August","09":"September",
+                                                       "10":"October","11":"November","12":"December",})
+# Copy columns to new columns with clearer names
+df['Amount of Animals'] = df['# of Animals']
+
+# *** to remove **** 
+
 # adds  templates to plotly.io
 load_figure_template(["minty_dark", "minty"]) 
  
@@ -76,18 +98,31 @@ app.layout = dbc.Container(
         html.Div(["Battery Metric Indicator"], className="bg-primary text-white h5 p-2"),
         color_mode_switch, 
         dbc.Row([ dbc.Col([battery_control_panel_1  ],  width=3),  
-                  dbc.Col([ dcc.Graph(id="battery_fig", figure= battery_fig, className="border")],  width=9),
+                  dbc.Col([ dcc.Graph(id       ="battery_fig",
+                                      figure   = battery_fig,
+                                      className="border")],  width=9),
                 ]),     
         html.Hr(),  
         html.Div(["Battery Cell Comparison"], className="bg-primary text-white h5 p-2"),        
         dbc.Row([ dbc.Col([battery_control_panel_2  ],  width=3),  
-                  dbc.Col([dcc.RadioItems(options=['pop', 'lifeExp', 'gdpPercap'], value='lifeExp', id='controls-and-radio-item') ],  width=3), 
-                  dbc.Col([ dcc.Graph(id="battery_spider_plot", figure= battery_spider_plot , className="border")],  width=6),
+                  dbc.Col([html.Div(["Metric"], className="h6"),     
+                      dcc.Checklist(id             = 'my_checklist',                  
+                                    options        = [ {'label': x, 'value': x, 'disabled':False} for x in df['Month Call Made'].unique() ],
+                                    value          = ['January','July','December'], 
+                                    inline         =False,
+                                    className      = 'my_box_container',    
+                                    inputClassName = 'my_box_input',        
+                                    labelClassName = 'my_box_label', )],  width=3),  
+                  dbc.Col([ dcc.Graph(id="battery_spider_plot",
+                                      figure= battery_spider_plot ,
+                                      className="border")],  width=6),
                 ]),          
         html.Hr(),
         html.Div(["Worldwide Battery Development"], className="bg-primary text-white h5 p-2"),    
-        dbc.Row([ dbc.Col([battery_control_panel_3  ],  width=3),   
-                  dbc.Col([ dcc.Graph(id="battery_map", figure= battery_map, className="border")],  width=9),
+        dbc.Row([dbc.Col([battery_control_panel_3  ],  width=3),   
+                dbc.Col([ dcc.Graph(id="battery_map",
+                                    figure= battery_map,
+                                    className="border")],  width=9),
                 ]), 
         
     ]
@@ -109,7 +144,23 @@ app.layout = dbc.Container(
     Input("color-mode-switch", "value"),
 )
   
- 
+#------------------------------------------------------------------------------
+@app.callback(
+    Output(component_id='the_graph', component_property='figure'),
+    [Input(component_id='my_checklist', component_property='value')]
+)
+#def update_graph(options_chosen):
+
+    #dff = df[df['Month Call Made'].isin(options_chosen)]
+    #print (dff['Month Call Made'].unique()) 
+    #piechart=px.pie(
+            #data_frame=dff,
+            #values='Amount of Animals',
+            #names='Month Call Made',
+            #) 
+    #return (piechart)
+
+
 def update_figure_template(switch_off):
     template = pio.templates["minty"] if switch_off else pio.templates["minty_dark"]  
     patched_figure = Patch()
@@ -132,7 +183,7 @@ clientside_callback(
 
 
 # https://www.researchgate.net/figure/Distance-distribution-of-daily-flights-worldwide-Data-from-ref-5_fig2_351583250
-
+#https://www.youtube.com/watch?v=amRFPjSgEnk&ab_channel=CharmingData
 if __name__ == "__main__":
     app.run_server(debug=True)
     
