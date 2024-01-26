@@ -15,6 +15,8 @@ from Batteries.figures           import *
 from Batteries.knobs_and_buttons import * 
 from Batteries.control_panels    import * 
 
+# Deployment 
+# https://www.youtube.com/watch?v=XWJBJoV5yww&t=0s&ab_channel=CharmingData 
 # *** to remove **** 
 
 import datetime as dt
@@ -106,7 +108,7 @@ app.layout = dbc.Container(
         html.Div(["Battery Cell Comparison"], className="bg-primary text-white h5 p-2"),        
         dbc.Row([ dbc.Col([battery_control_panel_2  ],  width=3),  
                   dbc.Col([html.Div(["Metric"], className="h6"),     
-                      dcc.Checklist(id             = 'my_checklist',                  
+                      dcc.Checklist(id             = 'battery_metric_checklist',                  
                                     options        = [ {'label': x, 'value': x, 'disabled':False} for x in df['Month Call Made'].unique() ],
                                     value          = ['January','July','December'], 
                                     inline         =False,
@@ -142,25 +144,14 @@ app.layout = dbc.Container(
 @callback(
     Output("battery_map", "figure"),
     Input("color-mode-switch", "value"),
-)
-  
-#------------------------------------------------------------------------------
-@app.callback(
-    Output(component_id='the_graph', component_property='figure'),
-    [Input(component_id='my_checklist', component_property='value')]
-)
-#def update_graph(options_chosen):
+) 
 
-    #dff = df[df['Month Call Made'].isin(options_chosen)]
-    #print (dff['Month Call Made'].unique()) 
-    #piechart=px.pie(
-            #data_frame=dff,
-            #values='Amount of Animals',
-            #names='Month Call Made',
-            #) 
-    #return (piechart)
+#@app.callback(
+    #Output("battery_spider_plot","figure"),
+    #Input("battery_metric_checklist","value"),
+#) 
 
-
+# 
 def update_figure_template(switch_off):
     template = pio.templates["minty"] if switch_off else pio.templates["minty_dark"]  
     patched_figure = Patch()
