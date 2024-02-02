@@ -11,9 +11,12 @@ from dash_bootstrap_templates import load_figure_template
 
 
 # local imports 
-from Batteries.figures           import * 
-from Batteries.knobs_and_buttons import * 
-from Batteries.control_panels    import * 
+from Flight_Operations.figures           import *
+from Flight_Operations.knobs_and_buttons import * 
+from Flight_Operations.control_panels    import * 
+from Batteries.figures                   import * 
+from Batteries.knobs_and_buttons         import * 
+from Batteries.control_panels            import * 
 
 # Deployment 
 # https://www.youtube.com/watch?v=XWJBJoV5yww&t=0s&ab_channel=CharmingData 
@@ -52,13 +55,23 @@ color_mode_switch =  html.Span(
 )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
+# Airline Flight Operations  
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+flight_ops_aircraft_panel  = generate_flight_ops_aircraft_panel()  
+flight_ops_map             = generate_flight_ops_map()
+airport_bar_chart          = generate_flight_ops_airport_bar_chart()
+global_temperature_map     = generate_global_temperature_map()
+ 
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Battery  
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 # batter buttons and knobs 
-battery_control_panel_1 = generate_battery_control_panel_1()
-battery_control_panel_2 = generate_battery_control_panel_2() 
-battery_control_panel_3 = generate_battery_control_panel_3() 
+battery_metrics_panel       = generate_battery_metrics_panel()
+battery_1_properties_panel  = generate_battery_1_properties_panel() 
+battery_2_properties_panel  = generate_battery_2_properties_panel() 
+battery_3_properties_panel  = generate_battery_3_properties_panel() 
+battery_control_panel_3     = generate_battery_control_panel_3() 
  
 # Battery Plots  
 battery_fig         = generate_battery_scatter_plot()
@@ -94,42 +107,123 @@ battery_map         = generate_battery_dev_map()
 # Layout  
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
-app.layout = dbc.Container(
-    [
-        html.Div(["State of Battery Development"], className="bg-primary text-white h2 p-2"),
-        html.Div(["Battery Metric Indicator"], className="bg-primary text-white h5 p-2"),
+app.layout = dbc.Container( 
+    [   
+        html.Div(["Sustainable Aviation Technology Dashboard"], className="bg-success text-center text-white h2 p-2"),
+        
+        dbc.Row([ 
+             dbc.Col([ 
+                 dbc.Card([  html.Plaintext(
+                     children= ' text text text text text text text text text text' ,
+                                            id= "header", 
+                                            #style=Component.UNDEFINED
+                                            )
+                     
+                     ],body=True) 
+                 
+                 ],  width=8),  
+             dbc.Col([ ],  width=4),  
+            
+            ]), 
+        
+        html.Div(["State of Battery Development"], className="bg-primary text-white h5 p-2"),
         color_mode_switch, 
-        dbc.Row([ dbc.Col([battery_control_panel_1  ],  width=3),  
+        dbc.Row([ dbc.Col([battery_metrics_panel  ],  width=4),  
                   dbc.Col([ dcc.Graph(id       ="battery_fig",
                                       figure   = battery_fig,
-                                      className="border")],  width=9),
-                ]),     
-        html.Hr(),  
-        html.Div(["Battery Cell Comparison"], className="bg-primary text-white h5 p-2"),        
-        dbc.Row([ dbc.Col([battery_control_panel_2  ],  width=3),  
-                  dbc.Col([html.Div(["Metric"], className="h6"),     
-                      dcc.Checklist(id             = 'battery_metric_checklist',                  
-                                    options        = [ {'label': x, 'value': x, 'disabled':False} for x in df['Month Call Made'].unique() ],
-                                    value          = ['January','July','December'], 
-                                    inline         =False,
-                                    className      = 'my_box_container',    
-                                    inputClassName = 'my_box_input',        
-                                    labelClassName = 'my_box_label', )],  width=3),  
+                                      className="border-0 bg-transparent")],  width=8),
+                ]),   
+        html.Div(["Battery Cell Comparison"], className="bg-primary text-white h5 p-2"),   
+        dbc.Row([   
+                  dbc.Col([html.Div(["Cell 1"], className="text-sm-center h4"),
+                           battery_1_properties_panel],  width=3),   
+                  dbc.Col([html.Div(["Cell 2"], className="text-sm-center h4"),
+                           battery_2_properties_panel],  width=3), 
                   dbc.Col([ dcc.Graph(id="battery_spider_plot",
                                       figure= battery_spider_plot ,
-                                      className="border")],  width=6),
-                ]),          
-        html.Hr(),
+                                      className="border-0 bg-transparent")],  width=6),
+                ]), 
         html.Div(["Worldwide Battery Development"], className="bg-primary text-white h5 p-2"),    
-        dbc.Row([dbc.Col([battery_control_panel_3  ],  width=3),   
+        dbc.Row([dbc.Col([battery_control_panel_3  ],  width=4),   
                 dbc.Col([ dcc.Graph(id="battery_map",
                                     figure= battery_map,
-                                    className="border")],  width=9),
+                                    className="border-0 bg-transparent")],  width=8),
                 ]), 
+          
+        html.Div(["Airline Flight Operations"], className="bg-primary  text-white h5 p-2"), 
+        dbc.Row([  dbc.Col([flight_ops_aircraft_panel ],  width=4),                    
+                   dbc.Col([  
+                       dbc.Card([  
+                       dbc.Col([     
+                       html.Div(["Ground Temperature"], className="text-sm-center h4"),
+                       dcc.Graph(id="global_temperature_map",
+                                               figure= global_temperature_map,
+                                               className="border-0 bg-transparent"), 
+                           
+                       dcc.Graph(id="airport_bar_chart",
+                                           figure= airport_bar_chart, )         
+                       ])
+                       ], className="border-0 bg-transparent")
+                       
+                       ],  width=8),                
+                
+                ]), 
+        html.Div(["Feasible Routes"], className="bg-primary  text-white h5 p-2"),  
+        dbc.Row([     dbc.Col([
+                      dbc.Card([
+                      dbc.Row([
+                      dbc.Col([    
+                      html.Div(["Passengers: "], className="h6"), 
+                      html.Div(["Max Takeoff Weight (kg): "], className="h6"),     
+                      html.Div(["Lift-to-Drag Ratio "], className="h6"),        
+                      html.Div(["Max Power (W): "], className="h6"),  
+                      html.Div(["Max Voltage (V): "], className="h6"),     
+                      html.Div(["Nominal Voltage (V): "], className="h6"),      
+                      html.Div(["Capacity (mAh): "], className="h6"),     
+                      html.Div(["Max Discharge Current (A): "], className="h6"),     
+                      html.Div(["Max Discharge Power (W): "], className="h6"),       
+                      html.Div(["Cell Mass (g): "], className="h6"),      
+                      html.Div(["Energy Density (Wh/kg): "], className="h6"),      
+                      html.Div(["Power Density (W/kg): "], className="h6"),  
+                      html.Div(["Max Operating Temp. (deg. C): "], className="h6"),   
+                      html.Div(["Min Operating Temp. (deg. C): "], className="h6"), 
+                      ],  width=8),
+
+                      dbc.Col([    
+                      html.Div(["Value"], className="h6"), 
+                      html.Div(["Value"], className="h6"),     
+                      html.Div(["Value "], className="h6"),        
+                      html.Div(["Value"], className="h6"),  
+                      html.Div(["Value"], className="h6"),     
+                      html.Div(["Value"], className="h6"),      
+                      html.Div(["Value"], className="h6"),     
+                      html.Div(["Value"], className="h6"),     
+                      html.Div(["Value"], className="h6"),       
+                      html.Div(["Value"], className="h6"),      
+                      html.Div(["Value"], className="h6"),      
+                      html.Div(["Value"], className="h6"),  
+                      html.Div(["Value"], className="h6"),   
+                      html.Div(["Value"], className="h6"), 
+                      ],  width=4), 
+                      ])
+                      ],body=True, className="border-0 bg-transparent") 
+                      ],  width=4), 
+
+                    dbc.Col([ dcc.Graph(id="flight_ops_map",
+                                    figure= flight_ops_map,
+                                    className="border-0 bg-transparent")],  width=8),                  
+                ]),   
         
+
+        html.Div(["Contact Us"], className="bg-success text-white h2 p-2"),         
     ]
 
 )
+
+def max_voltage(flight_ops_battery_brand_dropdown,flight_ops_battery_chemistry_dropdown,flight_ops_battery_model_dropdown):
+    return "Test"
+
+
  
 @callback(
     Output("battery_fig", "figure"),
@@ -146,11 +240,21 @@ app.layout = dbc.Container(
     Input("color-mode-switch", "value"),
 ) 
 
-#@app.callback(
-    #Output("battery_spider_plot","figure"),
-    #Input("battery_metric_checklist","value"),
-#) 
+@callback(
+    Output("flight_ops_map", "figure"),
+    Input("color-mode-switch", "value"),
+)  
 
+@callback(
+    Output("airport_bar_chart", "figure"),
+    Input("color-mode-switch", "value"),
+)  
+
+@callback(
+    Output("global_temperature_map", "figure"),
+    Input("color-mode-switch", "value"),
+)  
+ 
 # 
 def update_figure_template(switch_off):
     template = pio.templates["minty"] if switch_off else pio.templates["minty_dark"]  

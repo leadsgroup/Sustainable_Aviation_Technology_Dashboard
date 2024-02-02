@@ -1,4 +1,5 @@
 import plotly.express as px
+import plotly.graph_objects as go
 import pandas as pd
 
 
@@ -39,10 +40,16 @@ def generate_battery_dev_map(map_style = "dark"):
     battery_map = px.scatter_mapbox(us_cities, lat="lat", lon="lon", hover_name="City", hover_data=["State", "Population"],
                             color_discrete_sequence=["aquamarine"], zoom=1 ,)
     battery_map.update_layout(mapbox_style="open-street-map",      
-                              showlegend=False,
+                              showlegend=False, 
+                              height    = 300,
+                              margin={'t':0,'l':0,'b':0,'r':0},
                               mapbox=dict(
                                           accesstoken=mapbox_access_token, 
-                                          style=map_style, 
+                                          style=map_style,
+                                          center=go.layout.mapbox.Center(
+                                                      lat=20,
+                                                      lon=10
+                                                  ),                                          
                                       )                              
                               ) 
     
