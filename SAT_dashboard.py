@@ -20,27 +20,18 @@ from Batteries.control_panels            import *
 
 # Deployment 
 # https://www.youtube.com/watch?v=XWJBJoV5yww&t=0s&ab_channel=CharmingData 
-# *** to remove **** 
+# *** to remove ****  
 
-import datetime as dt
-df = pd.read_csv("Urban_Park_Ranger_Animal_Condition_Response.csv")  # https://drive.google.com/file/d/1m63TNoZdDUtH5XhK-mc4kDFzO9j97eWW/view?usp=sharing
-
-#------------------------------------------------------------------------------
-# Drop rows w/ no animals found or calls w/ varied age groups
-df = df[(df['# of Animals']>0) & (df['Age']!='Multiple')]
-
-# Create column for month from time call made to Ranger
-df['Month Call Made'] = pd.to_datetime(df['Date and Time of initial call'])
-df['Month Call Made'] = df['Month Call Made'].dt.strftime('%m')
-df.sort_values('Month Call Made', inplace=True)
-df['Month Call Made'] = df['Month Call Made'].replace({"01":"January","02":"February","03":"March",
-                                                       "04":"April","05":"May","06":"June",
-                                                       "07":"July","08":"August","09":"September",
-                                                       "10":"October","11":"November","12":"December",})
-# Copy columns to new columns with clearer names
-df['Amount of Animals'] = df['# of Animals']
-
-# *** to remove **** 
+filename = 'Data/LEADS_SAT_Dashboard_Data.xlsx'
+SAT_data = pd.read_excel(filename,sheet_name=['Commercial_Batteries', 'Air_Travel','Global_Temperature']) 
+Commercial_Batteries = SAT_data['Commercial_Batteries']
+Air_Travel           = SAT_data['Air_Travel']
+Global_Temperature   = SAT_data['Global_Temperature']
+a                    = Commercial_Batteries['Brand']  
+b                    = Commercial_Batteries['Chemistry']
+c                    = Commercial_Batteries['Model']
+d                    = a + ' ' + b + ' ' + c 
+Commercial_Batteries["Battery Name"] = d        
 
 # adds  templates to plotly.io
 load_figure_template(["minty_dark", "minty"]) 
@@ -64,19 +55,11 @@ global_temperature_map     = generate_global_temperature_map()
  
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Battery  
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-
-# batter buttons and knobs 
-battery_metrics_panel       = generate_battery_metrics_panel()
-battery_1_properties_panel  = generate_battery_1_properties_panel() 
-battery_2_properties_panel  = generate_battery_2_properties_panel() 
-battery_3_properties_panel  = generate_battery_3_properties_panel() 
-battery_control_panel_3     = generate_battery_control_panel_3() 
- 
-# Battery Plots  
-battery_fig         = generate_battery_scatter_plot()
-battery_spider_plot = generate_battery_spider_plot()
-battery_map         = generate_battery_dev_map()
+# --------------------------------------------------------------------------------------------------------------------------------------------------- 
+battery_metrics_panel       = generate_battery_metrics_panel(Commercial_Batteries)
+battery_comparison_panel    = generate_battery_comparison_panel(Commercial_Batteries)   
+battery_development_panel   = generate_battery_development_panel(Commercial_Batteries)  
+battery_map                 = generate_battery_dev_map(Commercial_Batteries)
  
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -116,7 +99,6 @@ app.layout = dbc.Container(
                  dbc.Card([  html.Plaintext(
                      children= ' text text text text text text text text text text' ,
                                             id= "header", 
-                                            #style=Component.UNDEFINED
                                             )
                      
                      ],body=True) 
@@ -126,25 +108,21 @@ app.layout = dbc.Container(
             
             ]), 
         
-        html.Div(["State of Battery Development"], className="bg-primary text-white h5 p-2"),
+        html.Div(["Commercial Battery Landscape"], className="bg-primary text-white h5 p-2"),
         color_mode_switch, 
         dbc.Row([ dbc.Col([battery_metrics_panel  ],  width=4),  
-                  dbc.Col([ dcc.Graph(id       ="battery_fig",
-                                      figure   = battery_fig,
+                  dbc.Col([ dcc.Graph(id       ="battery_metrics_figure", 
                                       className="border-0 bg-transparent")],  width=8),
-                ]),   
+                ]),    
+        html.Div([    html.Br() ]),   
         html.Div(["Battery Cell Comparison"], className="bg-primary text-white h5 p-2"),   
         dbc.Row([   
-                  dbc.Col([html.Div(["Cell 1"], className="text-sm-center h4"),
-                           battery_1_properties_panel],  width=3),   
-                  dbc.Col([html.Div(["Cell 2"], className="text-sm-center h4"),
-                           battery_2_properties_panel],  width=3), 
-                  dbc.Col([ dcc.Graph(id="battery_spider_plot",
-                                      figure= battery_spider_plot ,
+                  dbc.Col([battery_comparison_panel],  width=6),    
+                  dbc.Col([ dcc.Graph(id="battery_spider_plot", 
                                       className="border-0 bg-transparent")],  width=6),
                 ]), 
         html.Div(["Worldwide Battery Development"], className="bg-primary text-white h5 p-2"),    
-        dbc.Row([dbc.Col([battery_control_panel_3  ],  width=4),   
+        dbc.Row([dbc.Col([battery_development_panel  ],  width=4),   
                 dbc.Col([ dcc.Graph(id="battery_map",
                                     figure= battery_map,
                                     className="border-0 bg-transparent")],  width=8),
@@ -219,22 +197,43 @@ app.layout = dbc.Container(
     ]
 
 )
-
-def max_voltage(flight_ops_battery_brand_dropdown,flight_ops_battery_chemistry_dropdown,flight_ops_battery_model_dropdown):
-    return "Test"
-
-
+ 
  
 @callback(
-    Output("battery_fig", "figure"),
+    Output("battery_metrics_figure", "figure"),
+    Input("battery_brand_metrics", "value"),
+    Input("battery_chemistry_metrics", "value"),
+    Input("battery_x_axis_metrics", "value"),
+    Input("battery_y_axis_metrics", "value"),
     Input("color-mode-switch", "value"),
-)
-
+) 
+def update_battery_metrics_figure(selected_brand,selected_chemistry,selected_x_axis,selected_y_axis,switch_off):
+    filename = 'Data/LEADS_SAT_Dashboard_Data.xlsx'
+    SAT_data = pd.read_excel(filename,sheet_name=['Commercial_Batteries', 'Air_Travel','Global_Temperature']) 
+    Commercial_Batteries = SAT_data['Commercial_Batteries']    
+    fig = generate_battery_scatter_plot(Commercial_Batteries,selected_brand,selected_chemistry,selected_x_axis,selected_y_axis,switch_off)  
+    return fig 
+ 
 @callback(
     Output("battery_spider_plot", "figure"),
+    Input("battery_1", "value"),
+    Input("battery_2", "value"),
+    Input("battery_3", "value"),
     Input("color-mode-switch", "value"),
 )
- 
+
+def update_battery_comparison_figure(bat_1,bat_2,bat_3,switch_off):
+    filename = 'Data/LEADS_SAT_Dashboard_Data.xlsx'
+    SAT_data = pd.read_excel(filename,sheet_name=['Commercial_Batteries', 'Air_Travel','Global_Temperature']) 
+    Commercial_Batteries = SAT_data['Commercial_Batteries'] 
+    a                    = Commercial_Batteries['Brand']  
+    b                    = Commercial_Batteries['Chemistry']
+    c                    = Commercial_Batteries['Model']
+    d                    = a + ' ' + b + ' ' + c 
+    Commercial_Batteries["Battery Name"] = d       
+    fig_2 = generate_battery_spider_plot(Commercial_Batteries,bat_1,bat_2,bat_3,switch_off)  
+    return fig_2  
+
 @callback(
     Output("battery_map", "figure"),
     Input("color-mode-switch", "value"),
@@ -260,8 +259,7 @@ def update_figure_template(switch_off):
     template = pio.templates["minty"] if switch_off else pio.templates["minty_dark"]  
     patched_figure = Patch()
     patched_figure["layout"]["template"] = template 
-    return patched_figure
- 
+    return patched_figure 
 
 clientside_callback(
     """

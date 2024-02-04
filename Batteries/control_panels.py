@@ -1,60 +1,36 @@
 
 from . import * 
 
-def generate_battery_metrics_panel():  
+def generate_battery_metrics_panel(Commercial_Batteries):  
     
-    battery_brand_panel_1      = select_battery_brand_panel_1()
-    battery_chemistry_panel_1  = select_battery_chemistry_panel_1()
-    battery_x_axis_panel_1     = select_battery_x_axis_panel_1()   
-    battery_y_axis_panel_1     = select_battery_y_axis_panel_1()   
-    #battery_dev_year_panel_1   = select_battery_dev_year_panel_1()     
+    battery_brand_metrics      = select_battery_brand_metrics(Commercial_Batteries)
+    battery_chemistry_metrics  = select_battery_chemistry_metrics(Commercial_Batteries)
+    battery_x_axis_metrics     = select_battery_x_axis_metrics(Commercial_Batteries)   
+    battery_y_axis_metrics     = select_battery_y_axis_metrics(Commercial_Batteries)     
 
-    battery_metrics_panel = dbc.Card([battery_brand_panel_1,
-                                        battery_chemistry_panel_1,
-                                        battery_x_axis_panel_1,
-                                        battery_y_axis_panel_1,
-                                        #battery_dev_year_panel_1
+    battery_metrics_panel = dbc.Card([battery_brand_metrics,
+                                        battery_chemistry_metrics,
+                                        battery_x_axis_metrics,
+                                        battery_y_axis_metrics, 
                                         ],body=True,)
 
     return battery_metrics_panel
 
- 
+def generate_battery_comparison_panel(Commercial_Batteries):
 
-def generate_battery_1_properties_panel():
-
-    battery_1_brand      = select_battery_1_brand()
-    battery_1_chemistry  = select_battery_1_chemistry()
-    battery_1_model      = select_battery_1_model()  
-    battery_1_control_panel = dbc.Card([battery_1_brand,battery_1_chemistry,battery_1_model], body=True,) 
+    battery_1_option         = select_battery_1(Commercial_Batteries) 
+    battery_2_option         = select_battery_2(Commercial_Batteries) 
+    battery_3_option         = select_battery_3(Commercial_Batteries) 
+    battery_comparison_panel = dbc.Card([battery_1_option,battery_2_option,battery_3_option], body=True,) 
     
-    return battery_1_control_panel 
- 
-def generate_battery_2_properties_panel():
-
-    battery_2_brand      = select_battery_2_brand()
-    battery_2_chemistry  = select_battery_2_chemistry()
-    battery_2_model      = select_battery_2_model()  
-    battery_2_control_panel = dbc.Card([battery_2_brand,battery_2_chemistry,battery_2_model], body=True,) 
-    
-    return battery_2_control_panel 
-
-
-def generate_battery_3_properties_panel():
-
-    battery_3_brand      = select_battery_3_brand()
-    battery_3_chemistry  = select_battery_3_chemistry()
-    battery_3_model      = select_battery_3_model()  
-    battery_3_control_panel = dbc.Card([battery_3_brand,battery_3_chemistry,battery_3_model], body=True,) 
-    
-    return battery_3_control_panel 
-
+    return battery_comparison_panel   
 
  
-def generate_battery_control_panel_3():  
+def generate_battery_development_panel(Commercial_Batteries):  
     
-    battery_industry_panel_3  = select_battery_industry_panel_3()
-    battery_type_panel_3      = select_battery_type_panel_3()      
-    battery_control_panel_3   = dbc.Card([battery_industry_panel_3,
-                                        battery_type_panel_3],body=True,)
+    battery_industry_dev_panel  = select_battery_industry_dev_panel(Commercial_Batteries)
+    battery_type_dev_panel      = select_battery_type_dev_panel(Commercial_Batteries)      
+    battery_development_panel   = dbc.Card([battery_industry_dev_panel,
+                                        battery_type_dev_panel],body=True,)
 
-    return battery_control_panel_3 
+    return battery_development_panel 

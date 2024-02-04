@@ -85,15 +85,10 @@ def select_flight_ops_aircraft_battery_mass_fraction():
     
     battery_mass_fraction = html.Div(
         [
-            dbc.Label("Select Battery Mass Fraction"),
-            dcc.RangeSlider(
-                2000,
-                2024, 
-                1,
-                id="battery_mass_fraction",
-                marks={i: '{}'.format(i) for i in range(2000,2025,5)},
-                tooltip={"placement": "bottom", "always_visible": True},
-                value=[2000, 2024], 
+            dbc.Label("Select % Battery Mass Fraction"),
+            dcc.Slider(0, 100, 10,
+                value=20,
+                id="battery_mass_fraction", 
             ),
         ],
         className="mb-4",
@@ -104,14 +99,9 @@ def select_flight_ops_fleet_adoption():
     fleet_adoption = html.Div(
         [
             dbc.Label("Select % Fleet Adoption"),
-            dcc.RangeSlider(
-                2000,
-                2024, 
-                1,
-                id="fleet_adoption",
-                marks={i: '{}'.format(i) for i in range(2000,2025,5)},
-                tooltip={"placement": "bottom", "always_visible": True},
-                value=[2000, 2024], 
+            dcc.Slider(0, 100, 10,
+                value=50,
+                id="battery_fleet", 
             ),
         ],
         className="mb-4",
@@ -123,15 +113,24 @@ def select_flight_ops_time_of_year():
     
     battery_dev_year = html.Div(
         [
-            dbc.Label("Select Month Range"),
-            dcc.RangeSlider(
-                2000,
-                2024, 
-                1,
-                id="time_of_year_slider",
-                marks={i: '{}'.format(i) for i in range(2000,2025,5)},
-                tooltip={"placement": "bottom", "always_visible": True},
-                value=[2000, 2024], 
+            dbc.Label("Select Month"), 
+            dcc.Slider(0, 11, 1,
+                value=6, 
+                marks = {
+                    0:{'label': "Jan"},
+                    1:{'label': "Feb"}, 
+                    2:{'label': "Mar"},  
+                    3:{'label': "Apr"}, 
+                    4:{'label': "May"},
+                    5:{'label': "Jun"},
+                    6:{'label': "Jul"},
+                    7:{'label': "Aug"}, 
+                    8:{'label': "Sep"},  
+                    9:{'label': "Oct"}, 
+                    10:{'label': "Nov"}, 
+                    11:{'label': "Dec"},                    
+                 },
+                id="month",
             ),
         ],
         className="mb-4",
