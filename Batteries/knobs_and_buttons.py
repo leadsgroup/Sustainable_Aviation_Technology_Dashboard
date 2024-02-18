@@ -86,7 +86,7 @@ def select_battery_1(Commercial_Batteries):
         [  
             dbc.Label("Select Battery Cell 1"),
             dcc.Dropdown(list(Commercial_Batteries['Battery Name'][1:].unique()),
-                value       = list(Commercial_Batteries['Battery Name'][1:].unique())[-3],
+                value       = list(Commercial_Batteries['Battery Name'][1:].unique())[17],
                 placeholder = 'Select Battery',
                 clearable   = True,
                 disabled    = False,
@@ -103,7 +103,7 @@ def select_battery_2(Commercial_Batteries):
         [ 
             dbc.Label("Select Battery Cell 2"),
             dcc.Dropdown(list(Commercial_Batteries['Battery Name'][1:].unique()),
-                value        = list(Commercial_Batteries['Battery Name'][1:].unique())[-1],
+                value        = list(Commercial_Batteries['Battery Name'][1:].unique())[8],
                 placeholder  = 'Select Battery',
                 clearable    = True,
                 disabled     = False,
@@ -120,7 +120,7 @@ def select_battery_3(Commercial_Batteries):
         [ 
             dbc.Label("Select Battery Cell 3"),
             dcc.Dropdown(list(Commercial_Batteries['Battery Name'][1:].unique()),
-                value        = list(Commercial_Batteries['Battery Name'][1:].unique())[5],
+                value        = list(Commercial_Batteries['Battery Name'][1:].unique())[0],
                 placeholder  = 'Select Battery',
                 clearable    = True,
                 disabled     = False,
@@ -135,37 +135,37 @@ def select_battery_3(Commercial_Batteries):
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Panel 3 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------  
-def select_battery_industry_dev_panel(Commercial_Batteries):
+def select_battery_industry_dev_panel(Battery_Research):
+    All = ['All']
+    sector_list = All + list(Battery_Research['Sector'][1:].unique())
     battery_industry = html.Div(
         [
-            dbc.Label("Select Industry"),
-            dcc.Dropdown(
-                ["gdpPercap", "lifeExp", "pop"],
+            dbc.Label("Select Sector"), 
+            dcc.Dropdown(sector_list,
                 value = 'All',
                 placeholder = 'All',
                 clearable = True,
                 disabled = False,
                 style = {'display': True, 'color': 'black'},
-                id="battery_industry_dropdown_p3",   
+                id="battery_sector",   
             ),
         ],
         className="mb-4",
     ) 
     return battery_industry
 
-def select_battery_type_dev_panel(Commercial_Batteries):
+def select_battery_type_dev_panel(Battery_Research): 
+    type_list =  ['All','Li-Ion','Li-Sulphur','Metal-Air','Li-Silicon']
     battery_type = html.Div(
         [
             dbc.Label("Select Battery Type"),
-            dcc.Dropdown(
-                ["gdpPefrcap", "lifreExp", "pfop"],
+            dcc.Dropdown(type_list,
                 value = 'All',
                 placeholder = 'All',
                 clearable = True,
                 disabled = False,
                 style = {'display': True, 'color': 'black'},
-                id="battery_chemistry_dropdown_p3", 
-                multi= True
+                id="battery_type",
             ),
         ],
         className="mb-4",

@@ -26,10 +26,9 @@ def generate_battery_comparison_panel(Commercial_Batteries):
     return battery_comparison_panel   
 
  
-def generate_battery_development_panel(Commercial_Batteries):  
-    
-    battery_industry_dev_panel  = select_battery_industry_dev_panel(Commercial_Batteries)
-    battery_type_dev_panel      = select_battery_type_dev_panel(Commercial_Batteries)      
+def generate_battery_development_panel(Battery_Research):   
+    battery_industry_dev_panel  = select_battery_industry_dev_panel(Battery_Research)
+    battery_type_dev_panel      = select_battery_type_dev_panel(Battery_Research)      
     battery_development_panel   = dbc.Card([battery_industry_dev_panel,
                                         battery_type_dev_panel],body=True,)
 

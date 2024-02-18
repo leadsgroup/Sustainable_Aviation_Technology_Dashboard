@@ -4,60 +4,22 @@ import dash_bootstrap_components as dbc
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Panel 1 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------  
-def select_flight_ops_battery_brand_panel_1():
-    flight_ops_battery_brand = html.Div(
-        [
-            dbc.Label("Select Battery Brand"),
-            dcc.Dropdown(
-                ["gdpPercap", "lifeExp", "pop"],
-                value = 'All',
-                placeholder = 'All',
-                clearable = True,
-                disabled = False,
-                style = {'display': True, 'color': 'black'},
-                id="flight_ops_battery_brand_dropdown",   
+def select_flight_ops_battery(Commercial_Batteries):
+    flight_ops_battery = html.Div(
+        [ 
+            dbc.Label("Battery"),
+            dcc.Dropdown(list(Commercial_Batteries['Battery Name'][1:].unique()),
+                value        = Commercial_Batteries['Battery Name'][13],
+                placeholder  = Commercial_Batteries['Battery Name'][13],
+                clearable    = True,
+                disabled     = False,
+                style        = {'display': True, 'color': 'black'},
+                id           ="flight_ops_battery",   
             ),
         ],
-        className="mb-4",
-    ) 
-    return flight_ops_battery_brand
-
-def select_flight_ops_battery_chemistry_panel_1():
-    flight_ops_battery_chemistry = html.Div(
-        [
-            dbc.Label("Select Battery Chemistry"),
-            dcc.Dropdown(
-                ["gdpPefrcap", "lifreExp", "pfop"],
-                value = 'All',
-                placeholder = 'All',
-                clearable = True,
-                disabled = False,
-                style = {'display': True, 'color': 'black'},
-                id="flight_ops_battery_chemistry_dropdown",   
-            ),
-        ],
-        className="mb-4",
-    ) 
-    return flight_ops_battery_chemistry
-
-
-def select_flight_ops_battery_model_panel_1():
-    flight_ops_battery_model = html.Div(
-        [
-            dbc.Label("Select Battery Model"),
-            dcc.Dropdown(
-                ["gdpPefrcap", "lifreExp", "pfop"],
-                value = 'All',
-                placeholder = 'All',
-                clearable = True,
-                disabled = False,
-                style = {'display': True, 'color': 'black'},
-                id="flight_ops_battery_model_dropdown",   
-            ),
-        ],
-        className="mb-4",
-    ) 
-    return flight_ops_battery_model
+        className="mb-4", 
+    )  
+    return flight_ops_battery 
  
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Panel 2
@@ -65,15 +27,15 @@ def select_flight_ops_battery_model_panel_1():
 def select_flight_ops_aircraft():
     flight_ops_aircraft = html.Div(
         [
-            dbc.Label("Select Aircraft"),
+            dbc.Label("Aircraft"),
             dcc.Dropdown(
-                ["gdpPercap", "lifeExp", "pop"],
-                value = 'All',
-                placeholder = 'All',
+                ["Boeing 737",'Airbus A320'],
+                value = 'Boeing 737',
+                placeholder = 'Boeing 737',
                 clearable = True,
                 disabled = False,
                 style = {'display': True, 'color': 'black'},
-                id="flight_ops_aircraft_dropdown",   
+                id="aircraft_type",   
             ),
         ],
         className="mb-4",
@@ -85,9 +47,9 @@ def select_flight_ops_aircraft_battery_mass_fraction():
     
     battery_mass_fraction = html.Div(
         [
-            dbc.Label("Select % Battery Mass Fraction"),
-            dcc.Slider(0, 100, 10,
-                value=20,
+            dbc.Label("Battery Mass Fraction"),
+            dcc.Slider(20, 100, 5,
+                value= 50,
                 id="battery_mass_fraction", 
             ),
         ],
@@ -98,24 +60,49 @@ def select_flight_ops_aircraft_battery_mass_fraction():
 def select_flight_ops_fleet_adoption(): 
     fleet_adoption = html.Div(
         [
-            dbc.Label("Select % Fleet Adoption"),
+            dbc.Label("Fleet Adoption"),
             dcc.Slider(0, 100, 10,
-                value=50,
-                id="battery_fleet", 
+                value=100,
+                id="percent_fleet_adoption", 
             ),
         ],
         className="mb-4",
     )
     return  fleet_adoption
 
+def select_aircraft_system_voltage():
+    system_voltage = html.Div(
+        [
+            dbc.Label("System Voltage"),
+            dcc.Slider(400, 800, 50,
+                value=600,
+                id="powertrain_voltage", 
+            ),
+        ],
+        className="mb-4",
+    ) 
+    return system_voltage
 
-def select_flight_ops_time_of_year():
+def select_propulsive_efficiency():
+    propulsive_efficiency = html.Div(
+        [
+            dbc.Label("Propulsive Efficiency"),
+            dcc.Slider(50, 100, 5,
+                value=95,
+                id="efficiency", 
+            ),
+        ],
+        className="mb-4",
+    )  
+    return propulsive_efficiency
+
+def select_flight_ops_time_of_year(US_Temperature_F):
     
     battery_dev_year = html.Div(
         [
-            dbc.Label("Select Month"), 
+            dbc.Label("Month"), 
             dcc.Slider(0, 11, 1,
-                value=6, 
+                value=4, 
                 marks = {
                     0:{'label': "Jan"},
                     1:{'label': "Feb"}, 
