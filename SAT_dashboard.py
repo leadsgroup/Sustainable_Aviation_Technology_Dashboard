@@ -117,7 +117,8 @@ app.layout = dbc.Container(
              dbc.Col([ ],  width=1),  
              html.Div([    html.Br() ]),   
             ]), 
-        
+
+        html.Div(["Battery Technology"], className="bg-primary text-white h2 p-2"),         
         html.Div(["Commercial Battery Metric Analysis"], className="bg-primary text-white h5 p-2"),
         color_mode_switch, 
         dbc.Row([ dbc.Col([battery_metrics_panel  ],  width=4),  
