@@ -298,14 +298,16 @@ def generate_flight_ops_passenger_range_plot(Routes_and_Temp,Commercial_Batterie
 
     fig = go.Figure()
     sector_colors       = px.colors.qualitative.Pastel 
-    fig.add_trace(go.Histogram(x= Feasible_Routes['Distance (miles)'],
+    fig.add_trace(go.Histogram(histfunc="sum",
+                               x= Feasible_Routes['Distance (miles)'],
                                y = Feasible_Routes['Passengers'],
                                name='All Electric', 
                                xbins=dict(start=0, end=4000, size=500),
                                marker_color=sector_colors[0],
                                )
                   )
-    fig.add_trace(go.Histogram(x= Infeasible_Routes['Distance (miles)'],
+    fig.add_trace(go.Histogram(histfunc="sum",
+                               x= Infeasible_Routes['Distance (miles)'],
                                y = Infeasible_Routes['Passengers'],
                                name='Fossil Fuel',
                                xbins=dict(start=0, end=4000, size=500),
@@ -522,7 +524,8 @@ def generate_flight_ops_market_analysis(Routes_and_Temp,Commercial_Batteries,air
     
 
     fig = go.Figure()
-    sector_colors       = px.colors.qualitative.Pastel 
+    colors              = px.colors.qualitative.Pastel 
+    sector_colors       = [colors[0],colors[2]]
     Feasible_Passenger_Miles    = np.sum(np.array(Feasible_Routes['Passengers'])* np.array(Feasible_Routes['Distance (miles)']))
     Infeasible_Passenger_Miles  = np.sum(np.array(Infeasible_Routes[['Passengers']])* np.array(Infeasible_Routes[['Distance (miles)']]))
     Total_Passenger_Miles       = np.sum(np.array(Routes_and_Temp[['Passengers']])* np.array(Routes_and_Temp[['Distance (miles)']]))
@@ -655,7 +658,8 @@ def generate_flight_ops_monthly_emissions(Routes_and_Temp,Commercial_Batteries,a
               
       
     # Add data
-    sector_colors       = px.colors.qualitative.Pastel 
+    colors              = px.colors.qualitative.Pastel 
+    sector_colors       = [colors[0],colors[2]]
 
     month_names = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
              'Aug', 'Sep', 'Oct', 'Nov', 'Dec']      

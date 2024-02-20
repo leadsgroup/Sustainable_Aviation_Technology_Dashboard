@@ -104,7 +104,7 @@ flight_ops_aircraft_panel  = generate_flight_ops_aircraft_panel(Commercial_Batte
 app.layout = dbc.Container( 
     [   
         html.Div(["Sustainable Aviation Technology Dashboard"], className="bg-success text-center text-white h2 p-2"),
-        
+        color_mode_switch,
         dbc.Row([ 
              dbc.Col([ ],  width=1),
              dbc.Col([ 
@@ -115,12 +115,10 @@ app.layout = dbc.Container(
                      ],body=True)  
                  ],  width=10),  
              dbc.Col([ ],  width=1),  
-             html.Div([    html.Br() ]),   
-            ]), 
-
+             html.Div([ html.Br() ]),   
+            ]),  
         html.Div(["Battery Technology"], className="bg-primary text-white h2 p-2"),         
         html.Div(["Commercial Battery Metric Analysis"], className="bg-primary text-white h5 p-2"),
-        color_mode_switch, 
         dbc.Row([ dbc.Col([battery_metrics_panel  ],  width=4),  
                   dbc.Col([ dcc.Graph(id       ="battery_metrics_figure", className="border-0 bg-transparent")],  width=8),
                 ]),    
@@ -201,9 +199,9 @@ app.layout = dbc.Container(
              dbc.Col([ ],  width=1),
              dbc.Col([ 
                  dbc.Card([   
-                     html.Plaintext( children= 'Kindly direct any questions to Prof. Matthew Clarke by sending an email to maclarke@illinois.edu.', id= "header_part_1",), 
-                     html.Plaintext( children= 'Contribute to the Dashboard by sending us information on new batteries in the Marker or at high', id= "header_part_2",), 
-                     html.Plaintext( children= '(i.e. > 8) levels.', id= "header_part_3",), 
+                     html.Plaintext( children= 'Kindly direct any questions to Prof. Matthew Clarke by sending an email to maclarke@illinois.edu.', id= "tail_part_1",), 
+                     html.Plaintext( children= 'Contribute to the Dashboard by sending us information on new commercial batteries or batteries ', id= "tail_part_2",), 
+                     html.Plaintext( children= 'under development at high TRL levels (i.e. TRL > 8).', id= "tail_part_3",), 
                      ],body=True)  
                  ],  width=10),  
              dbc.Col([ ],  width=1),  
