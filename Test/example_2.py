@@ -2,90 +2,129 @@
 # Docs:     [dcc.Checklist](https://dash.plotly.com/dash-core-components/checklist)
 #
 
-import pandas as pd     
-import datetime as dt
 
-import dash                                     # pip install dash
-from dash import dcc, html, Input, Output
-import plotly.express as px
+from dash import Dash, html, dcc, Input, Output, Patch, clientside_callback, callback 
+import plotly.io as pio
+import dash_bootstrap_components as dbc 
+from dash_bootstrap_templates import load_figure_template
 
-df = pd.read_csv("Urban_Park_Ranger_Animal_Condition_Response.csv")  
+#app = dash.Dash(__name__) 
 
-#------------------------------------------------------------------------------
-# Drop rows w/ no animals found or calls w/ varied age groups
-df = df[(df['# of Animals']>0) & (df['Age']!='Multiple')]
 
-# Create column for month from time call made to Ranger
-df['Month Call Made'] = pd.to_datetime(df['Date and Time of initial call'])
-df['Month Call Made'] = df['Month Call Made'].dt.strftime('%m')
-df.sort_values('Month Call Made', inplace=True)
-df['Month Call Made'] = df['Month Call Made'].replace({"01":"January","02":"February","03":"March",
-                                                       "04":"April","05":"May","06":"June",
-                                                       "07":"July","08":"August","09":"September",
-                                                       "10":"October","11":"November","12":"December",})
-# Copy columns to new columns with clearer names
-df['Amount of Animals'] = df['# of Animals']
-#------------------------------------------------------------------------------
+# adds  templates to plotly.io
+load_figure_template(["minty_dark", "minty"]) 
+ 
+app = Dash(__name__, external_stylesheets=[dbc.themes.MINTY, dbc.icons.FONT_AWESOME]) 
 
-app = dash.Dash(__name__)
+color_mode_switch =  html.Span(
+    [
+        dbc.Label(className="fa fa-moon", html_for="color-mode-switch"),
+        dbc.Switch( id="color-mode-switch", value=False, className="d-inline-block ms-1", persistence=True),
+        dbc.Label(className="fa fa-sun", html_for="color-mode-switch"),
+    ]
+)
+ 
+ 
 
-#------------------------------------------------------------------------------
 app.layout = html.Div([
-
-        html.Div([
-            html.Pre(children= "NYC Calls for Animal Rescue",
-            style={"text-align": "center", "font-size":"100%", "color":"black"})
+    color_mode_switch,
+    dcc.Tabs([
+        
+        
+        dcc.Tab(label='Tab one', className="bg-primary text-white h2 p-2", children=[
+            
+            
+            
+            dcc.Graph(
+                figure={
+                    'data': [
+                        {'x': [1, 2, 3], 'y': [4, 1, 2],
+                            'type': 'bar', 'name': 'SF'},
+                        {'x': [1, 2, 3], 'y': [2, 4, 5],
+                         'type': 'bar', 'name': 'Montréal'},
+                    ]
+                }
+            )
+        
+        
+        ]
+                
+                ),
+        dcc.Tab(label='Tab two',className="bg-primary text-white h2 p-2", children=[
+            dcc.Graph(
+                figure={
+                    'data': [
+                        {'x': [1, 2, 3], 'y': [1, 4, 1],
+                            'type': 'bar', 'name': 'SF'},
+                        {'x': [1, 2, 3], 'y': [1, 2, 3],
+                         'type': 'bar', 'name': 'Montréal'},
+                    ]
+                }
+            )
         ]),
-
-        html.Div([
-            dcc.Checklist(
-                id='my_checklist',                      # used to identify component in callback
-                options=[
-                         {'label': x, 'value': x, 'disabled':False}
-                         for x in df['Month Call Made'].unique()
-                ],
-                value=['January','July','December'],    # values chosen by default
-
-                className='my_box_container',           # class of the container (div)
-                # style={'display':'flex'},             # style of the container (div)
-
-                inputClassName='my_box_input',          # class of the <input> checkbox element
-                # inputStyle={'cursor':'pointer'},      # style of the <input> checkbox element
-
-                labelClassName='my_box_label',          # class of the <label> that wraps the checkbox input and the option's label
-                # labelStyle={'background':'#A5D6A7',   # style of the <label> that wraps the checkbox input and the option's label
-                #             'padding':'0.5rem 1rem',
-                #             'border-radius':'0.5rem'},
-
-                #persistence='',                        # stores user's changes to dropdown in memory ( I go over this in detail in Dropdown video: https://youtu.be/UYH_dNSX1DM )
-                #persistence_type='',                   # stores user's changes to dropdown in memory ( I go over this in detail in Dropdown video: https://youtu.be/UYH_dNSX1DM )
-            ),
+        dcc.Tab(label='Tab three',className="bg-primary text-white h2 p-2",  children=[
+            dcc.Graph(
+                figure={
+                    'data': [
+                        {'x': [1, 2, 3], 'y': [2, 4, 3],
+                            'type': 'bar', 'name': 'SF'},
+                        {'x': [1, 2, 3], 'y': [5, 4, 3],
+                         'type': 'bar', 'name': 'Montréal'},
+                    ]
+                }
+            )
         ]),
-
-        html.Div([
-            dcc.Graph(id='the_graph')
-    ]),
-
+    ])
 ])
 
-#------------------------------------------------------------------------------
-@app.callback(
-    Output(component_id='the_graph', component_property='figure'),
-    [Input(component_id='my_checklist', component_property='value')]
+
+
+
+#app.layout = html.Div([
+    #dcc.Tabs(id = 'tabs', value = 'tab-1', children = [
+    #dcc.Tab(label = 'Battery ', value = 'tab-1',className="bg-primary text-white h2 p-2"),
+    #dcc.Tab(label = 'Energy Exploration', value = 'tab-2', className="bg-primary text-white h2 p-2"),
+    #]),
+    #html.Div(id = 'tab-content')
+#])
+
+#@callback(
+    #Output('tab-content', 'children'),
+    #Input('tabs', 'value')
+#)
+
+#def render_content(tab):
+    #if tab == 'tab-1':
+        #return html.Div([
+        #color_mode_switch,
+        #html.H3('Tab 1 Content'),
+        #])
+    #elif tab == 'tab-2':
+        #return html.Div([ 
+        #color_mode_switch,        
+        #html.H3('Tab 2 Content'),
+        #]) 
+    
+    
+def update_figure_template(switch_off):
+    template = pio.templates["minty"] if switch_off else pio.templates["minty_dark"]  
+    patched_figure = Patch()
+    patched_figure["layout"]["template"] = template 
+    return patched_figure 
+
+clientside_callback(
+    """
+    (switchOn) => {
+       switchOn
+         ? document.documentElement.setAttribute('data-bs-theme', 'light')
+         : document.documentElement.setAttribute('data-bs-theme', 'dark')
+       return window.dash_clientside.no_update
+    }
+    """,
+    Output("color-mode-switch", "id"),
+    Input("color-mode-switch", "value"),
 )
-def update_graph(options_chosen):
 
-    dff = df[df['Month Call Made'].isin(options_chosen)]
-    print (dff['Month Call Made'].unique())
-
-    piechart=px.pie(
-            data_frame=dff,
-            values='Amount of Animals',
-            names='Month Call Made',
-            )
-
-    return (piechart)
-
-#------------------------------------------------------------------------------
+     
 if __name__ == '__main__':
     app.run_server(debug=True)
