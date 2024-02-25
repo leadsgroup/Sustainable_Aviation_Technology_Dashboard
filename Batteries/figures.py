@@ -219,7 +219,7 @@ def generate_battery_dev_map(Battery_Research,selected_sector,selected_type,swit
                                      color_discrete_sequence=[sector_colors[j]], zoom=1 ,)
             fig.add_trace(fig2.data[0])            
                 
-                
+    fig.update_traces(marker={"size": 10})
     fig.update_layout(mapbox_style  = "open-street-map",      
                       showlegend    = False, 
                       height        = 300, 

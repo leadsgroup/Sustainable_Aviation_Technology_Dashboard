@@ -4,10 +4,7 @@ from dash import Dash, html, dcc, Input, Output, Patch, clientside_callback, cal
 import plotly.io as pio
 import dash_bootstrap_components as dbc 
 from dash_bootstrap_templates import load_figure_template
-
-#app = dash.Dash(__name__) 
-
-
+ 
 # adds  templates to plotly.io
 load_figure_template(["minty_dark", "minty"]) 
  
@@ -22,19 +19,19 @@ color_mode_switch =  html.Span(
 )
  
 
-primary_color = '#78c2ad'
-primary_color_2 = '#a9d8cb'
-secondary_color = '#f3969a' 
+primary_color     = '#78c2ad'
+primary_color_2   = '#a9d8cb'
+secondary_color   = '#f3969a' 
 secondary_color_2 = '#f7bcbe'
-backround        = '#212529'
-success_color = '#56cc9d'
-info_color = '#6cc3d5'
-light_color = '#f8f9fa'
-warning_color = '#fdce67'
-dark_color   = '#828588'
-font_size    =  '20px'
-border       = '1px solid #828588'
-tabs_styles = {
+backround         = '#212529'
+success_color     = '#56cc9d'
+info_color        = '#6cc3d5'
+light_color       = '#f8f9fa'
+warning_color     = '#fdce67'
+dark_color        = '#828588'
+font_size         =  '20px'
+border            = '1px solid #828588'
+tabs_styles       = {
     'height': '44px'
 }
 tab_style = {

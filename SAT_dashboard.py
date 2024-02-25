@@ -75,7 +75,7 @@ battery_flight_ops_aircraft_panel   = generate_flight_ops_aircraft_panel(Commerc
 
 # Template and theme
 load_figure_template(["minty_dark", "minty"])  
-app = Dash(__name__,external_stylesheets=[dbc.themes.MINTY, dbc.icons.FONT_AWESOME])
+app = Dash(__name__,external_stylesheets=[dbc.themes.MINTY, dbc.icons.FONT_AWESOME],suppress_callback_exceptions=True)
 color_mode_switch =  html.Span(
     [
         dbc.Label(className="fa fa-moon", html_for="color-mode-switch"),
@@ -317,7 +317,7 @@ def render_content(tab):
     Input("battery_chemistry_metrics", "value"),
     Input("battery_x_axis_metrics", "value"),
     Input("battery_y_axis_metrics", "value"),
-    Input("color-mode-switch", "value"),
+    Input("color-mode-switch", "value"), 
 )  
 def update_battery_metrics_figure(selected_brand,selected_chemistry,selected_x_axis,selected_y_axis,switch_off): 
     technology_filename  = 'Data/Technology_Data.xlsx'
@@ -331,7 +331,7 @@ def update_battery_metrics_figure(selected_brand,selected_chemistry,selected_x_a
     Input("battery_1", "value"),
     Input("battery_2", "value"),
     Input("battery_3", "value"),
-    Input("color-mode-switch", "value"),
+    Input("color-mode-switch", "value"), 
 )
 def update_battery_comparison_figure(bat_1,bat_2,bat_3,switch_off):
     technology_filename  = 'Data/Technology_Data.xlsx'
@@ -349,7 +349,7 @@ def update_battery_comparison_figure(bat_1,bat_2,bat_3,switch_off):
     Output("battery_map", "figure"),
     Input("battery_sector", "value"),
     Input("battery_type", "value"),
-    Input("color-mode-switch", "value"),
+    Input("color-mode-switch", "value"), 
 ) 
 def update_sector_map(sector,bat_type,switch_off):
     technology_filename  = 'Data/Technology_Data.xlsx'
@@ -367,7 +367,7 @@ def update_sector_map(sector,bat_type,switch_off):
     Input("efficiency", "value"),
     Input("percent_fleet_adoption", "value"),
     Input("month", "value"),
-    Input("color-mode-switch", "value"),
+    Input("color-mode-switch", "value"), 
 )   
 def update_flight_ops_map(aircraft,battery_choice,weight_fraction,system_voltage,propulsive_efficiency,percent_adoption,month_no,switch_off):
     technology_filename  = 'Data/Technology_Data.xlsx'
@@ -389,132 +389,6 @@ def update_flight_ops_map(aircraft,battery_choice,weight_fraction,system_voltage
     fig_4 = generate_flight_ops_map(Routes_and_Temp,Commercial_Batteries,aircraft,battery_choice,weight_fraction,system_voltage,propulsive_efficiency,percent_adoption,month_no,switch_off) 
     return fig_4
 
-@callback(
-    Output("passenger_range_plot", "figure"),
-    Input("aircraft_type", "value"),
-    Input("flight_ops_battery", "value"),
-    Input("battery_mass_fraction", "value"),
-    Input("powertrain_voltage", "value"),
-    Input("efficiency", "value"),
-    Input("percent_fleet_adoption", "value"),
-    Input("month", "value"),
-    Input("color-mode-switch", "value"),
-)   
-def update_flight_ops_passenger_range_plot(aircraft,battery_choice,weight_fraction,system_voltage,propulsive_efficiency,percent_adoption,month_no,switch_off):
-    technology_filename  = 'Data/Technology_Data.xlsx'
-    SAT_data             = pd.read_excel(technology_filename,sheet_name=['Commercial_Batteries']) 
-    Commercial_Batteries = SAT_data['Commercial_Batteries'] 
-    a                    = Commercial_Batteries['Brand']  
-    b                    = Commercial_Batteries['Chemistry']
-    c                    = Commercial_Batteries['Model']
-    d                    = a + ': ' + b + '-' + c 
-    Commercial_Batteries["Battery Name"] = d      
-    a                    = Commercial_Batteries['Brand']  
-    b                    = Commercial_Batteries['Chemistry']
-    c                    = Commercial_Batteries['Model']
-    d                    = a + ': ' + b + '-' + c 
-    Commercial_Batteries["Battery Name"] = d    
-    route_temp_filename  = 'Data/American_Airlines_Monthly_Temp.xlsx'
-    Routes_and_Temp      = pd.read_excel(route_temp_filename,sheet_name=['Sheet1']) 
-    Routes_and_Temp      = Routes_and_Temp['Sheet1']     
-    fig_5 = generate_flight_ops_passenger_range_plot(Routes_and_Temp,Commercial_Batteries,aircraft,battery_choice,weight_fraction,system_voltage,propulsive_efficiency,percent_adoption,month_no,switch_off) 
-    return fig_5 
-
-
-@callback(
-    Output("airport_electrification", "figure"),
-    Input("aircraft_type", "value"),
-    Input("flight_ops_battery", "value"),
-    Input("battery_mass_fraction", "value"),
-    Input("powertrain_voltage", "value"),
-    Input("efficiency", "value"),
-    Input("percent_fleet_adoption", "value"),
-    Input("month", "value"),
-    Input("color-mode-switch", "value"),
-)   
-def update_flight_ops_passenger_range_plot(aircraft,battery_choice,weight_fraction,system_voltage,propulsive_efficiency,percent_adoption,month_no,switch_off):
-    technology_filename  = 'Data/Technology_Data.xlsx'
-    SAT_data             = pd.read_excel(technology_filename,sheet_name=['Commercial_Batteries']) 
-    Commercial_Batteries = SAT_data['Commercial_Batteries'] 
-    a                    = Commercial_Batteries['Brand']  
-    b                    = Commercial_Batteries['Chemistry']
-    c                    = Commercial_Batteries['Model']
-    d                    = a + ': ' + b + '-' + c 
-    Commercial_Batteries["Battery Name"] = d      
-    a                    = Commercial_Batteries['Brand']  
-    b                    = Commercial_Batteries['Chemistry']
-    c                    = Commercial_Batteries['Model']
-    d                    = a + ': ' + b + '-' + c 
-    Commercial_Batteries["Battery Name"] = d    
-    route_temp_filename  = 'Data/American_Airlines_Monthly_Temp.xlsx'
-    Routes_and_Temp      = pd.read_excel(route_temp_filename,sheet_name=['Sheet1']) 
-    Routes_and_Temp      = Routes_and_Temp['Sheet1']     
-    fig_6 = generate_flight_ops_airport_electrification(Routes_and_Temp,Commercial_Batteries,aircraft,battery_choice,weight_fraction,system_voltage,propulsive_efficiency,percent_adoption,month_no,switch_off) 
-    return fig_6  
-
-
-@callback(
-    Output("market_analysis_plot", "figure"),
-    Input("aircraft_type", "value"),
-    Input("flight_ops_battery", "value"),
-    Input("battery_mass_fraction", "value"),
-    Input("powertrain_voltage", "value"),
-    Input("efficiency", "value"),
-    Input("percent_fleet_adoption", "value"),
-    Input("month", "value"),
-    Input("color-mode-switch", "value"),
-)   
-def update_flight_ops_market_analysis_plot(aircraft,battery_choice,weight_fraction,system_voltage,propulsive_efficiency,percent_adoption,month_no,switch_off):
-    technology_filename  = 'Data/Technology_Data.xlsx'
-    SAT_data             = pd.read_excel(technology_filename,sheet_name=['Commercial_Batteries']) 
-    Commercial_Batteries = SAT_data['Commercial_Batteries'] 
-    a                    = Commercial_Batteries['Brand']  
-    b                    = Commercial_Batteries['Chemistry']
-    c                    = Commercial_Batteries['Model']
-    d                    = a + ': ' + b + '-' + c 
-    Commercial_Batteries["Battery Name"] = d      
-    a                    = Commercial_Batteries['Brand']  
-    b                    = Commercial_Batteries['Chemistry']
-    c                    = Commercial_Batteries['Model']
-    d                    = a + ': ' + b + '-' + c 
-    Commercial_Batteries["Battery Name"] = d    
-    route_temp_filename  = 'Data/American_Airlines_Monthly_Temp.xlsx'
-    Routes_and_Temp      = pd.read_excel(route_temp_filename,sheet_name=['Sheet1']) 
-    Routes_and_Temp      = Routes_and_Temp['Sheet1']     
-    fig_7 = generate_flight_ops_market_analysis(Routes_and_Temp,Commercial_Batteries,aircraft,battery_choice,weight_fraction,system_voltage,propulsive_efficiency,percent_adoption,month_no,switch_off) 
-    return fig_7 
-
-
-@callback(
-    Output("monthly_emissions", "figure"),
-    Input("aircraft_type", "value"),
-    Input("flight_ops_battery", "value"),
-    Input("battery_mass_fraction", "value"),
-    Input("powertrain_voltage", "value"),
-    Input("efficiency", "value"),
-    Input("percent_fleet_adoption", "value"),
-    Input("month", "value"),
-    Input("color-mode-switch", "value"),
-)   
-def update_battery_flight_ops_monthly_emissions_plot(aircraft,battery_choice,weight_fraction,system_voltage,propulsive_efficiency,percent_adoption,month_no,switch_off):
-    technology_filename  = 'Data/Technology_Data.xlsx'
-    SAT_data             = pd.read_excel(technology_filename,sheet_name=['Commercial_Batteries']) 
-    Commercial_Batteries = SAT_data['Commercial_Batteries'] 
-    a                    = Commercial_Batteries['Brand']  
-    b                    = Commercial_Batteries['Chemistry']
-    c                    = Commercial_Batteries['Model']
-    d                    = a + ': ' + b + '-' + c 
-    Commercial_Batteries["Battery Name"] = d      
-    a                    = Commercial_Batteries['Brand']  
-    b                    = Commercial_Batteries['Chemistry']
-    c                    = Commercial_Batteries['Model']
-    d                    = a + ': ' + b + '-' + c 
-    Commercial_Batteries["Battery Name"] = d    
-    route_temp_filename  = 'Data/American_Airlines_Monthly_Temp.xlsx'
-    Routes_and_Temp      = pd.read_excel(route_temp_filename,sheet_name=['Sheet1']) 
-    Routes_and_Temp      = Routes_and_Temp['Sheet1']     
-    fig_8 = generate_flight_ops_monthly_emissions(Routes_and_Temp,Commercial_Batteries,aircraft,battery_choice,weight_fraction,system_voltage,propulsive_efficiency,percent_adoption,month_no,switch_off) 
-    return fig_8  
 
 @callback(
     Output("us_temperature_map", "figure"),
@@ -527,8 +401,39 @@ def update_us_temperature_map(month_no,switch_off):
     US_Temperature_F   = Temeperature_data['US_County_Temperature_F'] 
     fig_6              = generate_us_temperature_map(US_Temperature_F,month_no,switch_off)  
     return fig_6 
- 
- 
+
+
+@callback(
+    Output("passenger_range_plot", "figure"),
+    Output("airport_electrification", "figure"),
+    Output("market_analysis_plot", "figure"),
+    Output("monthly_emissions", "figure"),
+    Input("aircraft_type", "value"),
+    Input("flight_ops_battery", "value"),
+    Input("battery_mass_fraction", "value"),
+    Input("powertrain_voltage", "value"),
+    Input("efficiency", "value"),
+    Input("percent_fleet_adoption", "value"),
+    Input("month", "value"),
+    Input("color-mode-switch", "value"), 
+)   
+def update_flight_ops_passenger_range_plot(aircraft,battery_choice,weight_fraction,system_voltage,propulsive_efficiency,percent_adoption,month_no,switch_off):
+    technology_filename  = 'Data/Technology_Data.xlsx'
+    SAT_data             = pd.read_excel(technology_filename,sheet_name=['Commercial_Batteries']) 
+    Commercial_Batteries = SAT_data['Commercial_Batteries'] 
+    a                    = Commercial_Batteries['Brand']  
+    b                    = Commercial_Batteries['Chemistry']
+    c                    = Commercial_Batteries['Model']
+    d                    = a + ': ' + b + '-' + c 
+    Commercial_Batteries["Battery Name"] = d      
+    route_temp_filename  = 'Data/American_Airlines_Monthly_Temp.xlsx'
+    Routes_and_Temp      = pd.read_excel(route_temp_filename,sheet_name=['Sheet1']) 
+    Routes_and_Temp      = Routes_and_Temp['Sheet1']     
+    
+    fig_5, fig_6 ,fig_7,fig_8 = generate_electric_aircraft_flight_ops_meta_data(Routes_and_Temp,Commercial_Batteries,aircraft,battery_choice,weight_fraction,system_voltage,propulsive_efficiency,percent_adoption,month_no,switch_off) 
+         
+    return fig_5, fig_6 ,fig_7,fig_8
+  
 if __name__ == "__main__":
     app.run_server(debug=True)
     
