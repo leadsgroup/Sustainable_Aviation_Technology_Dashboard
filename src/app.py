@@ -66,6 +66,8 @@ battery_flight_ops_aircraft_panel   = generate_flight_ops_aircraft_panel(Commerc
 # Template and theme
 load_figure_template(["minty_dark", "minty"])  
 app = Dash(__name__,external_stylesheets=[dbc.themes.MINTY, dbc.icons.FONT_AWESOME],suppress_callback_exceptions=True)
+server = app.server
+
 color_mode_switch =  html.Span(
     [
         dbc.Label(className="fa fa-moon", html_for="color-mode-switch"),
