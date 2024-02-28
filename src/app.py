@@ -405,6 +405,15 @@ def update_battery_comparison_figure(bat_1,bat_2,bat_3,switch_off):
     Input("color-mode-switch", "value"), 
 ) 
 def update_sector_map(sector,bat_type,switch_off): 
+    technology_filename  = '..' + separator + 'Data' + separator + 'Technology_Data.xlsx'
+    SAT_data             = pd.read_excel(technology_filename,sheet_name=['Commercial_Batteries','Battery_Research']) 
+    Commercial_Batteries = SAT_data['Commercial_Batteries'] 
+    a                    = Commercial_Batteries['Brand']  
+    b                    = Commercial_Batteries['Chemistry']
+    c                    = Commercial_Batteries['Model']
+    d                    = a + ': ' + b + '-' + c 
+    Commercial_Batteries["Battery Name"] = d     
+    Battery_Research     = SAT_data['Battery_Research']    
     fig_3 = generate_battery_dev_map(Battery_Research,sector,bat_type,switch_off)  
     return fig_3 
 

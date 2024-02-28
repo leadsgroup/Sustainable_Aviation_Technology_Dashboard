@@ -182,8 +182,9 @@ def generate_battery_spider_plot(Commercial_Batteries,bat_1,bat_2,bat_3,switch_o
 
 def generate_battery_dev_map(Battery_Research,selected_sector,selected_type,switch_off): 
     template            = pio.templates["minty"] if switch_off else pio.templates["minty_dark"]    
+    map_style           = None if switch_off else 'dark'
     map_style           = None if switch_off else 'dark'  
-    unique_sectors      = list(Battery_Research['Sector'][1:].unique()) 
+    unique_sectors      = ['Industry', 'Academia', 'Government']
     unique_types        = ['Li-Ion','Li-Sulphur','Metal-Air','Li-Silicon']  
     sector_colors       = px.colors.qualitative.Pastel 
     mapbox_access_token = "pk.eyJ1IjoibWFjbGFya2UiLCJhIjoiY2xyanpiNHN6MDhsYTJqb3h6YmJjY2w5MyJ9.pQed7pZ9CnJL-mtqm1X8DQ" 
@@ -212,15 +213,27 @@ def generate_battery_dev_map(Battery_Research,selected_sector,selected_type,swit
             
     
     elif selected_sector != 'All' and  selected_type == 'All': 
+        color_idx = unique_sectors.index(selected_sector)
         for j in range(len(unique_sectors)): 
             data_1 = Battery_Research.loc[Battery_Research['Sector'] == selected_sector] 
             data_2 = data_1.loc[Battery_Research[unique_types[j]] == 1]  
             fig2   = px.scatter_mapbox(data_2, lat="Latitude", lon="Longitude",
                                       hover_name="Entity",
                                       hover_data=["City"],
-                                     color_discrete_sequence=[sector_colors[j]], zoom=1 ,)
-            fig.add_trace(fig2.data[0])            
-                
+                                     color_discrete_sequence=[sector_colors[color_idx]], zoom=1 ,)
+            fig.add_trace(fig2.data[0])      
+    
+    else:  
+        color_idx = unique_sectors.index(selected_sector)
+        data_1    = Battery_Research.loc[Battery_Research['Sector'] == selected_sector] 
+        data_2    = data_1.loc[Battery_Research[selected_type] == 1]
+        fig2      = px.scatter_mapbox(data_2, lat="Latitude", lon="Longitude",
+                                  hover_name="Entity",
+                                  hover_data=["City"],
+                                 color_discrete_sequence=[sector_colors[color_idx]], zoom=1 ,)
+        fig.add_trace(fig2.data[0])          
+
+    
     fig.update_traces(marker={"size": 10})
     fig.update_layout(mapbox_style  = "open-street-map",      
                       showlegend    = False, 
