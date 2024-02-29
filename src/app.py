@@ -171,7 +171,7 @@ app.layout = html.Div([
          dbc.Col([ 
              dbc.Card([   
                  dbc.CardBody([
-                              html.H5('Kindly direct any questions to Prof. Matthew Clarke by sending an email to maclarke@illinois.edu.Contribute to the Dashboard by sending us information on new commercial batteries or batteries. under development at high TRL levels (i.e. TRL > 8).'),
+                              html.H5('Kindly direct any questions to Dr. Matthew Clarke by sending an email to maclarke@illinois.edu. Contribute to the Dashboard by sending us information on new commercial batteries or batteries under development at high TRL levels (i.e. TRL > 8) using this link https://forms.gle/YPKqAuXwPZsoKcSdA.'),
                             ], className='text-sm-center h5'), 
                  ],body=True)  
              ],  width=10),  
