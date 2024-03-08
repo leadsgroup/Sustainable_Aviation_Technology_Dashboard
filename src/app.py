@@ -150,7 +150,7 @@ app.layout = html.Div([
          dbc.Col([ 
              dbc.Card([  
                  dbc.CardBody([
-                              html.H5('Developed by the Lab for Electric Aircraft Design and Sustainablity (LEADS) at the University of Illinois Urbana-Champaign, the Sustainable Aviation Technology Dashboard is a platform to examine the integration of new batteries, sustainable aviation fuel (SAF) and hydrogen propulsion technologies into future aircraft systems and assess their broader impact on society.'),
+                              html.H5('Developed by the Lab for Electric Aircraft Design and Sustainability (LEADS) at the University of Illinois Urbana-Champaign, the Sustainable Aviation Technology Dashboard is a platform to examine the integration of new batteries, sustainable aviation fuel (SAF) and hydrogen propulsion technologies into future aircraft systems and assess their broader impact on society.'),
                             ], className='text-sm-center h5'),   
                  ],body=True)  
              ],  width=10),  

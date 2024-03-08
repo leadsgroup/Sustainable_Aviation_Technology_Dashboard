@@ -4,7 +4,6 @@ import plotly.io as pio
 import pandas as pd
 import numpy as np   
 from urllib.request import urlopen
-import plotly.graph_objects as go
 import json  
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
