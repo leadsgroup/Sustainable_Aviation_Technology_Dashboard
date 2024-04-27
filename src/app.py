@@ -1,6 +1,6 @@
 """Sustainable Aviation Technology Dashboard
 """
-
+import dash 
 from dash import Dash, html, dcc, Input, Output, Patch, clientside_callback, callback 
 import plotly.io as pio
 import dash_bootstrap_components as dbc 
@@ -12,32 +12,43 @@ from Energy_X.knobs_and_buttons                import *
 from Energy_X.control_panels                   import *  
 from Electrification.figures                   import * 
 from Electrification.knobs_and_buttons         import * 
-from Electrification.control_panels            import *  
+from Electrification.control_panels            import * 
+from SAF.figures                               import * 
+from SAF.knobs_and_buttons                     import * 
+from SAF.control_panels                        import *   
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Data
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
-ospath                                = os.path.abspath(__file__)
-separator                             = os.path.sep
+ospath                     = os.path.abspath(__file__)
+separator                  = os.path.sep
 
-technology_filename  = '..' + separator + 'Data' + separator + 'Technology_Data.xlsx'
-SAT_data             = pd.read_excel(technology_filename,sheet_name=['Commercial_Batteries','Battery_Research']) 
-Commercial_Batteries = SAT_data['Commercial_Batteries'] 
-a                    = Commercial_Batteries['Brand']  
-b                    = Commercial_Batteries['Chemistry']
-c                    = Commercial_Batteries['Model']
-d                    = a + ': ' + b + '-' + c 
+technology_filename        = '..' + separator + 'Data'  + separator + 'Technology' + separator +  'Technology_Data.xlsx'
+crops_filename             = '..' + separator + 'Data'  + separator +  'Crops'     + separator + 'All_Crops_2017.xlsx' 
+routes_filename            = '..' + separator + 'Data'  + separator + 'Air_Travel' + separator + 'American_Airlines_Flight_Ops_and_Climate.xlsx'
+temperature_filename       = '..' + separator + 'Data' + separator  + 'US_Climate' + separator + 'Monthly_US_County_Temperature_2019.xlsx'
+SAT_data                   = pd.read_excel(technology_filename,sheet_name=['Commercial_Batteries','Battery_Development','Electric_Motor_Development','Commercial_SAF']) 
+
+Commercial_Batteries       = SAT_data['Commercial_Batteries'] 
+Electric_Motor_Development = SAT_data['Electric_Motor_Development']
+a                          = Commercial_Batteries['Brand']  
+b                          = Commercial_Batteries['Chemistry']
+c                          = Commercial_Batteries['Model']
+d                          = a + ': ' + b + '-' + c 
 Commercial_Batteries["Battery Name"] = d     
-Battery_Research     = SAT_data['Battery_Research']
-
-route_temp_filename  = '..' + separator + 'Data' + separator + 'American_Airlines_Monthly_Temp.xlsx'
-Routes_and_Temp      = pd.read_excel(route_temp_filename,sheet_name=['Sheet1']) 
-Routes_and_Temp      = Routes_and_Temp['Sheet1'] 
-
-
-temperature_filename = '..' + separator + 'Data' + separator + 'Monthly_US_County_Temperature.xlsx'
-Temeperature_data    = pd.read_excel(temperature_filename,sheet_name=['US_County_Temperature_F'])  
-US_Temperature_F     = Temeperature_data['US_County_Temperature_F'] 
+Battery_Development           = SAT_data['Battery_Development'] 
+Commercial_SAF             = SAT_data['Commercial_SAF']  
+a                          = Commercial_SAF['Brand']  
+b                          = Commercial_SAF['Fuel Type']
+c                          = Commercial_SAF['Process']
+d                          = Commercial_SAF['Source']
+e                          = Commercial_SAF['Feedstock']
+Commercial_SAF["Fuel Name"]= ' ' + a + ' ' + c + '-' + b + ' from ' + e  + ' (' + d  + ')'
+Flight_Ops                 = pd.read_excel(routes_filename,sheet_name=['Sheet1']) 
+Flight_Ops                 = Flight_Ops['Sheet1']  
+Temeperature_data          = pd.read_excel(temperature_filename,sheet_name=['US_County_Temperature_F'])  
+US_Temperature_F           = Temeperature_data['US_County_Temperature_F'] 
+feedstocks                 = pd.read_excel(crops_filename,sheet_name=['Corn','Soybean','Canola','Sunflower','Sorghum','Wheat'])  
  
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -50,11 +61,21 @@ Energy_X_battery_panel             = generate_Energy_X_battery_panel()
   
 # Battery   
 battery_metrics_panel               = generate_battery_metrics_panel(Commercial_Batteries)
+motor_metrics_panel                 = generate_motor_metrics_panel(Electric_Motor_Development)
 battery_comparison_panel            = generate_battery_comparison_panel(Commercial_Batteries)   
-battery_development_panel           = generate_battery_development_panel(Battery_Research)    
+battery_development_panel           = generate_battery_development_panel(Battery_Development)    
 battery_flight_ops_aircraft_panel   = generate_flight_ops_aircraft_panel(Commercial_Batteries,US_Temperature_F)   
  
 # Sustainable Aviation Fuel  
+saf_metrics_panel              = generate_saf_metrics_panel(Commercial_SAF)
+saf_development_panel          = generate_saf_development_panel(Commercial_SAF)
+saf_flight_ops_fuel_panel      = generate_saf_flight_ops_fuel_panel(Commercial_SAF)
+saf_flight_ops_states_panel    = generate_saf_flight_ops_states_panel()
+ 
+feedstock                      = select_feedstock_source(Commercial_SAF)     
+flight_ops_saf_adoption_frac   = select_saf_fleet_adoption() 
+saf_airports                   = select_saf_airports()    
+#saf_cost                       = select_saf_cost()    
 
 # Hydrogen 
 
@@ -101,7 +122,7 @@ tab_style = {
     'backgroundColor': backround,
 }
 
-tab_selected_style_1 = {
+energy_ex_tab_style = {
     'borderTop': border,
     'borderBottom': border,
     'backgroundColor': success_color,
@@ -111,7 +132,7 @@ tab_selected_style_1 = {
 }
  
 
-tab_selected_style_2 = {
+electrification_tab_style = {
     'borderTop': border,
     'borderBottom': border,
     'backgroundColor': primary_color,
@@ -121,7 +142,7 @@ tab_selected_style_2 = {
 }
 
 
-tab_selected_style_3 = {
+saf_tab_style = {
     'borderTop': border,
     'borderBottom': border,
     'backgroundColor': secondary_color,
@@ -131,7 +152,7 @@ tab_selected_style_3 = {
 }
 
 
-tab_selected_style_4 = {
+hydrogen_tab_style = {
     'borderTop': border,
     'borderBottom': border,
     'backgroundColor': info_color,
@@ -157,15 +178,15 @@ app.layout = html.Div([
          dbc.Col([ ],  width=1),  
          html.Div([ html.Br() ]),   
         ]),  
-    dcc.Tabs(id="tabs-styled-with-inline", value='tab-2', children=[
-        dcc.Tab(label='Energy-eX(ploration)', value='tab-1', style=tab_style, selected_style=tab_selected_style_1),
-        dcc.Tab(label='Electrification', value='tab-2', style=tab_style, selected_style=tab_selected_style_2),
-        dcc.Tab(label='Sustainable Aviation Fuel', value='tab-3', style=tab_style, selected_style=tab_selected_style_3),
-        dcc.Tab(label='Hydrogen', value='tab-4', style=tab_style, selected_style=tab_selected_style_4),
+    dcc.Tabs(id="tabs-styled-with-inline", value='tab-1', children=[
+        dcc.Tab(label='Electrification', value='tab-1', style=tab_style, selected_style=electrification_tab_style),
+        dcc.Tab(label='Sustainable Aviation Fuel', value='tab-2', style=tab_style, selected_style=saf_tab_style),
+        dcc.Tab(label='Hydrogen', value='tab-3', style=tab_style, selected_style=hydrogen_tab_style),
+        dcc.Tab(label='Energy-eX(ploration)', value='tab-4', style=tab_style, selected_style=energy_ex_tab_style),
     ], style=tabs_styles),
     html.Div(id='tabs-content-inline'), 
     html.Div([    html.Br() ]),    
-    html.Div(["Contact Us"], className="bg-success text-white h2 p-2"),
+    html.Div(["Contact Us"], className="bg-dark text-white h2 p-2"),
     dbc.Row([ 
          dbc.Col([ ],  width=1),
          dbc.Col([ 
@@ -206,7 +227,211 @@ clientside_callback(
               )
 
 def render_content(tab):
+    
     if tab == 'tab-1':
+        return  dbc.Container([    
+            html.Div([ html.Br() ]),     
+            html.Div(["Battery Technology"], className="bg-primary text-white h4 p-2"),
+            html.Div(["Commercial Battery Cell Metrics"], className="text-white-center h4 p-2"),
+            dbc.Row([ dbc.Col([battery_metrics_panel  ],  width=4),  
+                      dbc.Col([ dcc.Graph(id ="battery_metrics_figure", className="border-0 bg-transparent")],  width=8),
+                    ]),
+            html.Div([    html.Br() ]),
+            html.Div(["Battery Cell Comparison"], className="text-white-center h4 p-2"),   
+            dbc.Row([   
+                      dbc.Col([battery_comparison_panel],  width=4),    
+                      dbc.Col([ dcc.Graph(id="battery_spider_plot", className="border-0 bg-transparent")],  width=8),
+                    ]),  
+            html.Div([    html.Br() ]), 
+            html.Div(["Worldwide Battery Cell Development"], className="text-white-center h4 p-2"),    
+            dbc.Row([dbc.Col([battery_development_panel  ],  width=4),   
+                dbc.Col([ dcc.Graph(id="battery_map", className="border-0 bg-transparent")],  width=8),
+                ]),  
+            html.Div([ html.Br() ]),    
+            html.Div(["Electric Motors"], className="bg-primary text-white h4 p-2"), 
+            html.Div(["Motors Under Development"], className="text-white-center h4 p-2"),   
+            dbc.Row([ dbc.Col([motor_metrics_panel  ],  width=4),  
+                      dbc.Col([ dcc.Graph(id ="motor_metrics_figure", className="border-0 bg-transparent")],  width=8),
+                    ]), 
+            html.Div([    html.Br() ]),             
+            html.Div(["Annual Airline Flight Operations"], className="bg-primary text-white h4 p-2"), 
+            dbc.Row([  dbc.Col([battery_flight_ops_aircraft_panel ],  width=4),                    
+                   dbc.Col([  
+                       dbc.Card([  
+                       dbc.Col([     
+                       html.Div(["Feasible Electrified Routes"], className="text-sm-center h5"),
+                       dcc.Graph(id="electric_aircraft_flight_ops_map", className="border-0 bg-transparent"), 
+                       html.Div([    html.Br() ]),
+                       html.Div(["Average Monthly Temperature (deg. F)"], className="text-sm-center h5"),
+                       dcc.Graph(id="US_bat_temperature_map", className="border-0 bg-transparent")                       
+                       ])
+                       ], className="border-0 bg-transparent")
+                       
+                       ],  width=8),                
+                
+                ]),  
+            html.Div([    html.Br() ]), 
+            html.Div(["Techno-economics of Single U.S. Airline Operator"], className="bg-primary text-white h4 p-2"),    
+            dbc.Row([  dbc.Col([  
+                       dbc.Card([  
+                       dbc.Col([     
+                       html.Div(["Passenger Volume vs. Distance Traveled"], className="text-sm-center h5"),  
+                       dcc.Graph(id="electric_aircraft_passenger_range", className="border-0 bg-transparent" )         
+                       ])
+                       ], className="border-0 bg-transparent")
+                       
+                       ],  width=6),                   
+                   dbc.Col([  
+                       dbc.Card([  
+                       dbc.Col([     
+                       html.Div(["Busiest Airports"], className="text-sm-center h5"),  
+                       dcc.Graph(id="electric_aircraft_airports", className="border-0 bg-transparent" )         
+                       ])
+                       ], className="border-0 bg-transparent")
+                       
+                       ],  width=6),                
+                
+                ]),       
+            html.Div([ html.Br() ]),  
+            dbc.Row([  dbc.Col([  
+                                dbc.Card([  
+                                    dbc.Col([     
+                                        html.Div(["Fleet Operations"], className="text-sm-center h5"),  
+                                        dcc.Graph(id="electric_aircraft_market_size", className="border-0 bg-transparent" ) ])
+                                    ], className="border-0 bg-transparent") 
+                               ],  width=6),       
+                       dbc.Col([  
+                               dbc.Card([  
+                               dbc.Col([     
+                                   html.Div(["Cost Per Seat Mile (Energy Souce Only)"], className="text-sm-center h5"),  
+                                   dcc.Graph(id="electric_aircraft_CASM", className="border-0 bg-transparent" ) ])
+                                        ], className="border-0 bg-transparent") 
+                               ],width=6),  
+                ]), 
+            html.Div([    html.Br() ]),  
+            html.Div(["Climate & Emissions Impact"], className="bg-primary text-white h4 p-2"),        
+            dbc.Row([                    
+                   dbc.Col([  
+                       dbc.Card([  
+                       dbc.Col([     
+                       html.Div(["Tailpipe Emissions"], className="text-sm-center  h5"),  
+                       dcc.Graph(id="electric_aircraft_yearly_emissions", className="border-0 bg-transparent" )         
+                       ])
+                       ], className="border-0 bg-transparent")
+                       
+                       ],  width=6),    
+                ]),    
+        ])
+    
+    elif tab == 'tab-2':
+        return  dbc.Container([    
+            html.Div([ html.Br() ]),     
+            html.Div(["Sustainable Aviation Fuel"], className="bg-secondary text-white h4 p-2"),
+            html.Div(["Sustainable Aviation Fuel Metrics"], className="text-white-center h4 p-2"),
+            dbc.Row([ dbc.Col([saf_metrics_panel  ],  width=4),  
+                      dbc.Col([ dcc.Graph(id ="saf_metrics_figure", className="border-0 bg-transparent")],  width=8),
+                    ]),
+            html.Div([    html.Br() ]), 
+            html.Div(["Sustainable Aviation Fuel Development"], className="text-white-center h4 p-2"),    
+            dbc.Row([dbc.Col([saf_development_panel],  width=4),   
+                dbc.Col([ dcc.Graph(id="saf_production_map", className="border-0 bg-transparent")],  width=8),
+                ]),   
+            html.Div([    html.Br() ]),             
+            html.Div(["Annual Airline Flight Operations"], className="bg-secondary text-white h4 p-2"), 
+             
+
+            dbc.Card([  
+               dbc.Col([  
+               html.Div(["Select Jet-A and SAF Fuel Vendors"], className="text-sm-center h6"), 
+               saf_flight_ops_fuel_panel,
+               html.Div(["Select Jet-A and SAF Fuel Ratios (%)"], className="text-sm-center h6"),
+               dbc.Card([
+                   dcc.RangeSlider(0, 100, value=[],  pushable=1, id='fuel_usage'),
+                   dcc.Graph(id="SAF_usage_dynamic_bar", className="border-0 bg-transparent" ),
+               ], className="border-0 bg-transparent"),
+               html.Div([    html.Br() ]),      
+               html.Div(["Select States Where Feedstock (Crop) Is Sourced"], className="text-sm-center h6"), 
+               saf_flight_ops_states_panel   
+               ])
+               ], className="border-0 bg-transparent"),             
+            dbc.Row([  dbc.Col([
+                dbc.Card([
+                    feedstock,
+                    flight_ops_saf_adoption_frac,
+                    saf_airports],body=True,) 
+                ],  width=4),                    
+                   dbc.Col([  
+                       dbc.Card([  
+                       dbc.Col([     
+                       html.Div(["Single US Operator Flight Routes"], className="text-sm-center h5"),
+                       dcc.Graph(id="saf_flight_ops_map", className="border-0 bg-transparent"), 
+                       html.Div([    html.Br() ]),
+                       html.Div(["Land Required for Single Feedstock Crop Production"], className="text-sm-center h5"),
+                       dcc.Graph(id="saf_feedstock_map", className="border-0 bg-transparent")                       
+                       ])
+                       ], className="border-0 bg-transparent")
+                       
+                       ],  width=8), 
+                ]),  
+            html.Div([    html.Br() ]), 
+            html.Div(["Techno-economics of Single U.S. Airline Operator"], className="bg-secondary text-white h4 p-2"),    
+            dbc.Row([  dbc.Col([  
+                       dbc.Card([  
+                       dbc.Col([     
+                       html.Div(["Passenger Volume vs. Distance Traveled"], className="text-sm-center h5"),  
+                       dcc.Graph(id="saf_aircraft_passenger_range", className="border-0 bg-transparent" )         
+                       ])
+                       ], className="border-0 bg-transparent")
+                       
+                       ],  width=6),                   
+                   dbc.Col([  
+                       dbc.Card([  
+                       dbc.Col([     
+                       html.Div(["Busiest Airports"], className="text-sm-center h5"),  
+                       dcc.Graph(id="saf_aircraft_airports", className="border-0 bg-transparent" )         
+                       ])
+                       ], className="border-0 bg-transparent")
+                       
+                       ],  width=6),                
+                
+                ]),       
+            html.Div([ html.Br() ]),  
+            dbc.Row([  dbc.Col([  
+                                dbc.Card([  
+                                    dbc.Col([     
+                                        html.Div(["Fleet Operations"], className="text-sm-center h5"),  
+                                        dcc.Graph(id="saf_aircraft_market_size", className="border-0 bg-transparent" ) ])
+                                    ], className="border-0 bg-transparent") 
+                               ],  width=6),       
+                       #dbc.Col([  
+                               #dbc.Card([  
+                               #dbc.Col([     
+                                   #html.Div(["Cost Per Seat Mile (Fuel Only)"], className="text-sm-center h5"),  
+                                   #dcc.Graph(id="saf_CASM", className="border-0 bg-transparent" ) ])
+                                        #], className="border-0 bg-transparent") 
+                               #],width=6),  
+                ]), 
+            html.Div([    html.Br() ]),  
+            #html.Div(["Climate & Emissions Impact"], className="bg-primary text-white h4 p-2"),        
+            #dbc.Row([                    
+                   #dbc.Col([  
+                       #dbc.Card([  
+                       #dbc.Col([     
+                       #html.Div(["Tailpipe Emissions"], className="text-sm  h5"),  
+                       #dcc.Graph(id="electric_aircraft_yearly_emissions", className="border-0 bg-transparent" )         
+                       #])
+                       #], className="border-0 bg-transparent")
+                       
+                       #],  width=6),    
+                #]),    
+            ])
+    
+    elif tab == 'tab-3':
+        return dbc.Container([    
+            html.Div([ html.Br() ]),
+            html.H3('Coming Soon!')
+        ]) 
+    elif tab == 'tab-4':
         return dbc.Container([    
             html.Div([    html.Br() ]),              
             html.Div(["Future Electrochemical Cell (Battery) Impact Predictor"], className="bg-success text-white h4 p-2"), 
@@ -237,11 +462,11 @@ def render_content(tab):
                 
                 ]),  
             html.Div([    html.Br() ]), 
-            html.Div(["Air Travel Techno-economics and Emissions Impact"], className="bg-success text-white h4 p-2"),    
+            html.Div(["Techno-economics of Single U.S. Airline Operation"], className="bg-success text-white h4 p-2"),     
             dbc.Row([  dbc.Col([  
                        dbc.Card([  
                        dbc.Col([     
-                       html.Div(["Passenger Travel Distances"], className="text-sm-center h5"),  
+                       html.Div(["Passenger Volume vs Distance Traveled"], className="text-sm-center h5"),  
                        dcc.Graph(id="EX_aircraft_passenger_range", className="border-0 bg-transparent" )         
                        ])
                        ], className="border-0 bg-transparent")
@@ -257,124 +482,34 @@ def render_content(tab):
                        
                        ],  width=6),                
                 
-                ]), 
-            html.Div([    html.Br() ]),  
-            html.Div([    html.Br() ]),        
+                ]),  
             dbc.Row([  dbc.Col([  
+                                 dbc.Card([  
+                                 dbc.Col([     
+                                     html.Div(["Fleet Operations"], className="text-sm-center h5"),  
+                                     dcc.Graph(id="EX_aircraft_market_size", className="border-0 bg-transparent" ) ])
+                                          ], className="border-0 bg-transparent")
+                               ], width=6),       
+                ]), 
+            html.Div([    html.Br() ]),          
+            html.Div(["Climate & Emissions Impact"], className="bg-primary text-white h4 p-2"),        
+            dbc.Row([                  
+                       dbc.Col([  
                        dbc.Card([  
                        dbc.Col([     
-                       html.Div(["Market Size"], className="text-sm-center h5"),  
-                       dcc.Graph(id="EX_aircraft_market_size", className="border-0 bg-transparent" )         
-                       ])
-                       ], className="border-0 bg-transparent")
-                       
-                       ],  width=6),                   
-                   dbc.Col([  
-                       dbc.Card([  
-                       dbc.Col([     
-                       html.Div(["Monthly Emissions"], className="text-sm-center h5"),  
+                       html.Div(["Aircraft Tailpipe Fleet Emissions"], className="text-sm-center h5"),  
                        dcc.Graph(id="EX_aircraft_yearly_emissions", className="border-0 bg-transparent" )         
                        ])
                        ], className="border-0 bg-transparent")
                        
-                       ],  width=6),                
-                
-                ]),  
-        ]) 
-    
-    
-    elif tab == 'tab-2':
-        return  dbc.Container([    
-            html.Div([ html.Br() ]),    
-            html.Div(["Commercial Battery Assessment"], className="bg-primary text-white h4 p-2"),
-            dbc.Row([ dbc.Col([battery_metrics_panel  ],  width=4),  
-                      dbc.Col([ dcc.Graph(id ="battery_metrics_figure", className="border-0 bg-transparent")],  width=8),
-                    ]),
-            html.Div([    html.Br() ]),
-            html.Div(["Commercial Battery Cell Comparison"], className="bg-primary text-white h4 p-2"),   
-            dbc.Row([   
-                      dbc.Col([battery_comparison_panel],  width=4),    
-                      dbc.Col([ dcc.Graph(id="battery_spider_plot", className="border-0 bg-transparent")],  width=8),
-                    ]),           
-        
-            html.Div(["Worldwide Battery Cell Development"], className="bg-primary text-white h4 p-2"),    
-            dbc.Row([dbc.Col([battery_development_panel  ],  width=4),   
-                dbc.Col([ dcc.Graph(id="battery_map", className="border-0 bg-transparent")],  width=8),
-                ]),  
-            html.Div([    html.Br() ]),             
-            html.Div(["Airline Electric Aircraft Flight Operations"], className="bg-primary text-white h4 p-2"), 
-            dbc.Row([  dbc.Col([battery_flight_ops_aircraft_panel ],  width=4),                    
-                   dbc.Col([  
-                       dbc.Card([  
-                       dbc.Col([     
-                       html.Div(["Feasible Routes"], className="text-sm-center h5"),
-                       dcc.Graph(id="flight_ops_map", className="border-0 bg-transparent"), 
-                       html.Div([    html.Br() ]),
-                       html.Div(["Average Monthly Temperature (deg. F)"], className="text-sm-center h5"),
-                       dcc.Graph(id="US_bat_temperature_map", className="border-0 bg-transparent")                       
-                       ])
-                       ], className="border-0 bg-transparent")
-                       
-                       ],  width=8),                
-                
-                ]),  
-            html.Div([    html.Br() ]), 
-            html.Div(["Air Travel Techno-economics and Emissions Impact"], className="bg-primary text-white h4 p-2"),    
-            dbc.Row([  dbc.Col([  
-                       dbc.Card([  
-                       dbc.Col([     
-                       html.Div(["Passenger Travel Distances"], className="text-sm-center h5"),  
-                       dcc.Graph(id="electric_aircraft_passenger_range", className="border-0 bg-transparent" )         
-                       ])
-                       ], className="border-0 bg-transparent")
-                       
-                       ],  width=6),                   
-                   dbc.Col([  
-                       dbc.Card([  
-                       dbc.Col([     
-                       html.Div(["Busiest Airports"], className="text-sm-center h5"),  
-                       dcc.Graph(id="electric_aircraft_airports", className="border-0 bg-transparent" )         
-                       ])
-                       ], className="border-0 bg-transparent")
-                       
-                       ],  width=6),                
-                
-                ]), 
-            html.Div([    html.Br() ]),  
-            html.Div([    html.Br() ]),        
-            dbc.Row([  dbc.Col([  
-                       dbc.Card([  
-                       dbc.Col([     
-                       html.Div(["Market Size"], className="text-sm-center h5"),  
-                       dcc.Graph(id="electric_aircraft_market_size", className="border-0 bg-transparent" )         
-                       ])
-                       ], className="border-0 bg-transparent")
-                       
-                       ],  width=6),                   
-                   dbc.Col([  
-                       dbc.Card([  
-                       dbc.Col([     
-                       html.Div(["Monthly Emissions"], className="text-sm-center h5"),  
-                       dcc.Graph(id="electric_aircraft_yearly_emissions", className="border-0 bg-transparent" )         
-                       ])
-                       ], className="border-0 bg-transparent")
-                       
-                       ],  width=6),                
-                
-                ]),    
-        ])
-    
-    elif tab == 'tab-3':
-        return dbc.Container([    
-            html.Div([ html.Br() ]),
-            html.H3('Coming Soon!')
-        ])
-    elif tab == 'tab-4':
-        return dbc.Container([    
-            html.Div([ html.Br() ]),
-            html.H3('Coming Soon!')
-        ]) 
+                       ],  width=12),      
+                ]),               
+        ])  
 
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+# Battery Tab 
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
 @callback(
     Output("battery_metrics_figure", "figure"),
     Input("battery_brand_metrics", "value"),
@@ -405,20 +540,35 @@ def update_battery_comparison_figure(bat_1,bat_2,bat_3,switch_off):
     Input("color-mode-switch", "value"), 
 ) 
 def update_sector_map(sector,bat_type,switch_off): 
-    technology_filename  = '..' + separator + 'Data' + separator + 'Technology_Data.xlsx'
-    SAT_data             = pd.read_excel(technology_filename,sheet_name=['Commercial_Batteries','Battery_Research']) 
+    technology_filename  = '..' + separator + 'Data'  + separator + 'Technology' + separator +  'Technology_Data.xlsx'
+    SAT_data             = pd.read_excel(technology_filename,sheet_name=['Commercial_Batteries','Battery_Development']) 
     Commercial_Batteries = SAT_data['Commercial_Batteries'] 
     a                    = Commercial_Batteries['Brand']  
     b                    = Commercial_Batteries['Chemistry']
     c                    = Commercial_Batteries['Model']
     d                    = a + ': ' + b + '-' + c 
     Commercial_Batteries["Battery Name"] = d     
-    Battery_Research     = SAT_data['Battery_Research']    
-    fig_3 = generate_battery_dev_map(Battery_Research,sector,bat_type,switch_off)  
+    Battery_Development     = SAT_data['Battery_Development']    
+    fig_3 = generate_battery_dev_map(Battery_Development,sector,bat_type,switch_off)  
     return fig_3 
 
 @callback(
-    Output("flight_ops_map", "figure"),
+    Output("motor_metrics_figure", "figure"), 
+    Input("motor_x_axis_metrics", "value"),
+    Input("motor_y_axis_metrics", "value"),
+    Input("color-mode-switch", "value"), 
+)  
+def update_motor_metrics_figure(selected_x_axis,selected_y_axis,switch_off):   
+    fig = generate_motor_scatter_plot(Electric_Motor_Development,selected_x_axis,selected_y_axis,switch_off) 
+    return fig    
+  
+@callback( 
+    Output("electric_aircraft_flight_ops_map", "figure"),    
+    Output("electric_aircraft_passenger_range", "figure"),
+    Output("electric_aircraft_airports", "figure"),
+    Output("electric_aircraft_market_size", "figure"),
+    Output("electric_aircraft_yearly_emissions", "figure"),
+    Output("electric_aircraft_CASM", "figure"),
     Input("electric_aircraft_type", "value"),
     Input("electric_aircraft_battery", "value"),
     Input("battery_mass_fraction", "value"),
@@ -426,11 +576,135 @@ def update_sector_map(sector,bat_type,switch_off):
     Input("electric_aircraft_efficiency", "value"),
     Input("electric_aircraft_percent_adoption", "value"),
     Input("electric_aircraft_month", "value"),
+    Input("electric_aircraft_charging_cost","value"),
     Input("color-mode-switch", "value"), 
 )   
-def update_flight_ops_map(aircraft,battery_choice,weight_fraction,system_voltage,propulsive_efficiency,percent_adoption,month_no,switch_off): 
-    fig_4 = generate_flight_ops_map(Routes_and_Temp,Commercial_Batteries,aircraft,battery_choice,weight_fraction,system_voltage,propulsive_efficiency,percent_adoption,month_no,switch_off) 
-    return fig_4 
+def update_flight_ops_map(aircraft,battery_choice,weight_fraction,system_voltage,propulsive_efficiency,percent_adoption,month_no,cost_of_electricity,switch_off): 
+    fig_4,fig_5, fig_6 ,fig_7,fig_8,fig_9 = generate_flight_ops_map(Flight_Ops,Commercial_Batteries,aircraft,battery_choice,weight_fraction,system_voltage,propulsive_efficiency,percent_adoption,month_no,cost_of_electricity,switch_off)     
+    return fig_4,fig_5, fig_6 ,fig_7,fig_8 , fig_9  
+ 
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+# SAF Tab  
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+@callback(
+    Output("fuel_usage", "value"),
+    Input("fuel_selection_list_1", "value"),
+    Input("fuel_selection_list_2", "value"), 
+    Input("color-mode-switch", "value"), 
+) 
+def update_fuel_usage(fuel_selection_list_1,fuel_selection_list_2,switch_off):   
+    selected_fuels = fuel_selection_list_1 + fuel_selection_list_2
+    values         = list(np.linspace(65, 95,len(selected_fuels)-1)) 
+    return values 
+
+@callback(
+    Output("SAF_usage_dynamic_bar", "figure"),
+    Input("fuel_selection_list_1", "value"),
+    Input("fuel_selection_list_2", "value"),
+    Input("fuel_usage", "value"),  
+    Input("color-mode-switch", "value"), 
+) 
+def update_fuel_usage(fuel_selection_list_1,fuel_selection_list_2,SAF_ratios,switch_off):     
+    selected_fuels = fuel_selection_list_1 + fuel_selection_list_2
+    if len(selected_fuels) == 0: 
+        return dash.no_update
+    else: 
+        saf_fig  = generate_saf_slider_bar(Commercial_SAF,selected_fuels,SAF_ratios,switch_off)
+    return saf_fig  
+
+@callback(
+    Output("saf_metrics_figure", "figure"),
+    Input("saf_process_metrics", "value"),
+    Input("saf_feedstock_metrics", "value"),
+    Input("saf_x_axis_metrics", "value"),
+    Input("saf_y_axis_metrics", "value"),
+    Input("color-mode-switch", "value"), 
+)  
+def update_saf_metrics_figure(selected_process,selected_feedstock,selected_x_axis,selected_y_axis,switch_off):   
+    saf_fig_1 = generate_saf_scatter_plot(Commercial_SAF,selected_process,selected_feedstock,selected_x_axis,selected_y_axis,switch_off)  
+    return saf_fig_1    
+  
+
+@callback(
+    Output("saf_production_map", "figure"),
+    Input("saf_feedstock_sector", "value"),
+    Input("saf_process_sector", "value"),
+    Input("color-mode-switch", "value"), 
+) 
+def update_sector_map(selected_feedstock,selected_process,switch_off):     
+    saf_fig_2 = generate_saf_dev_map(Commercial_SAF,selected_feedstock,selected_process,switch_off)
+    return saf_fig_2  
+  
+@callback( 
+    Output("saf_flight_ops_map", "figure"),    
+    Output("saf_feedstock_map", "figure"),
+    Output("saf_aircraft_passenger_range", "figure"),
+    Output("saf_aircraft_airports", "figure"),    
+    Output("saf_aircraft_market_size", "figure"), 
+    #Output("saf_CASM", "figure"),   
+    Input("fuel_selection_list_1", "value"),
+    Input("fuel_selection_list_2", "value"),
+    Input("saf_feedstock_source", "value"),
+    Input("fuel_usage", "value"),
+    Input("feedstock_states_1", "value"),
+    Input("feedstock_states_2", "value"),
+    Input("feedstock_states_3", "value"),
+    Input("feedstock_states_4", "value"),
+    Input("feedstock_states_5", "value"),
+    Input("feedstock_states_6", "value"),
+    Input("select_airports","value"),
+    Input("saf_percent_adoption","value"),
+    #Input("SAF_dollars_per_gal","value"),
+    Input("color-mode-switch", "value"), 
+)  
+
+def update_flight_ops_mapFlight_Ops(fuel_selection_list_1,fuel_selection_list_2,
+                                    selected_feedstock,percent_fuel_use,
+                                    State_List_1,State_List_2,State_List_3,State_List_4,State_List_5,State_List_6,
+                                    selected_airpots, percent_adoption,switch_off):  
+    
+    feedstock_producing_states      = State_List_1 + State_List_2 + State_List_3 + State_List_4 + State_List_5 + State_List_6    
+    selected_fuels                  = fuel_selection_list_1 + fuel_selection_list_2
+    
+    saf_fig_3, saf_fig_4,saf_fig_5, saf_fig_6, saf_fig_7  = generate_saf_flight_operations_plots(Flight_Ops,Commercial_SAF,feedstocks,
+                                    selected_fuels,
+                                    selected_feedstock,percent_fuel_use,
+                                    feedstock_producing_states,
+                                    selected_airpots, percent_adoption,switch_off)
+    return saf_fig_3, saf_fig_4,saf_fig_5, saf_fig_6, saf_fig_7 
+
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+# Energy Exploration Tab 
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+@callback(
+    Output("US_bat_temperature_map", "figure"),
+    Input("electric_aircraft_month", "value"),
+    Input("color-mode-switch", "value"),
+)
+def update_US_bat_temperature_map(month_no,switch_off):
+    filename           = '..' + separator + 'Data' + separator  + 'US_Climate' + separator + 'Monthly_US_County_Temperature_2019.xlsx'
+    Temeperature_data  = pd.read_excel(filename,sheet_name=['US_County_Temperature_F'])  
+    US_Temperature_F   = Temeperature_data['US_County_Temperature_F'] 
+    fig_6              = generate_US_bat_temperature_map(US_Temperature_F,month_no,switch_off)  
+    return fig_6  
+
+
+@callback(
+    Output("EX_us_temperature_map", "figure"),
+    Input("EX_aircraft_month", "value"),
+    Input("color-mode-switch", "value"),
+)
+def update_EX_bat_temperature_map(month_no,switch_off):
+    filename           = '..' + separator + 'Data' + separator  + 'US_Climate' + separator + 'Monthly_US_County_Temperature_2019.xlsx'
+    Temeperature_data  = pd.read_excel(filename,sheet_name=['US_County_Temperature_F'])  
+    US_Temperature_F   = Temeperature_data['US_County_Temperature_F'] 
+    fig_ex_6           = generate_US_EX_temperature_map(US_Temperature_F,month_no,switch_off)  
+    return fig_ex_6   
+ 
+ 
 
 
 @callback(
@@ -451,51 +725,9 @@ def update_flight_ops_map(aircraft,battery_choice,weight_fraction,system_voltage
     Input("color-mode-switch", "value"), 
 )   
 def update_flight_ops_map(EX_TOGW,EX_L_D,EX_Max_P,EX_system_V,EX_bat_frac,EX_eta,EX_cell_V,EX_capacity,EX_C_max,EX_e0,EX_Temp,EX_adoption,EX_month,switch_off):  
-    fig_ex_4 = generate_EX_flight_ops_map(Routes_and_Temp,EX_TOGW,EX_L_D,EX_Max_P,EX_system_V,EX_bat_frac,EX_eta,EX_cell_V,EX_capacity,EX_C_max,EX_e0,EX_Temp,EX_adoption,EX_month,switch_off) 
+    fig_ex_4 = generate_EX_flight_ops_map(Flight_Ops,EX_TOGW,EX_L_D,EX_Max_P,EX_system_V,EX_bat_frac,EX_eta,EX_cell_V,EX_capacity,EX_C_max,EX_e0,EX_Temp,EX_adoption,EX_month,switch_off) 
     return fig_ex_4 
-@callback(
-    Output("US_bat_temperature_map", "figure"),
-    Input("electric_aircraft_month", "value"),
-    Input("color-mode-switch", "value"),
-)
-def update_US_bat_temperature_map(month_no,switch_off):
-    filename           = '..' + separator + 'Data' + separator + 'Monthly_US_County_Temperature.xlsx'
-    Temeperature_data  = pd.read_excel(filename,sheet_name=['US_County_Temperature_F'])  
-    US_Temperature_F   = Temeperature_data['US_County_Temperature_F'] 
-    fig_6              = generate_US_bat_temperature_map(US_Temperature_F,month_no,switch_off)  
-    return fig_6  
 
-
-@callback(
-    Output("EX_us_temperature_map", "figure"),
-    Input("EX_aircraft_month", "value"),
-    Input("color-mode-switch", "value"),
-)
-def update_EX_bat_temperature_map(month_no,switch_off):
-    filename           = '..' + separator + 'Data' + separator + 'Monthly_US_County_Temperature.xlsx'
-    Temeperature_data  = pd.read_excel(filename,sheet_name=['US_County_Temperature_F'])  
-    US_Temperature_F   = Temeperature_data['US_County_Temperature_F'] 
-    fig_ex_6           = generate_US_EX_temperature_map(US_Temperature_F,month_no,switch_off)  
-    return fig_ex_6   
-
-@callback(
-    Output("electric_aircraft_passenger_range", "figure"),
-    Output("electric_aircraft_airports", "figure"),
-    Output("electric_aircraft_market_size", "figure"),
-    Output("electric_aircraft_yearly_emissions", "figure"),
-    Input("electric_aircraft_type", "value"),
-    Input("electric_aircraft_battery", "value"),
-    Input("battery_mass_fraction", "value"),
-    Input("electric_aircraft_system_voltage", "value"),
-    Input("electric_aircraft_efficiency", "value"),
-    Input("electric_aircraft_percent_adoption", "value"),
-    Input("electric_aircraft_month", "value"),
-    Input("color-mode-switch", "value"), 
-)   
-def update_flight_ops_passenger_range_plot(aircraft,battery_choice,weight_fraction,system_voltage,propulsive_efficiency,percent_adoption,month_no,switch_off): 
-    fig_5, fig_6 ,fig_7,fig_8 = generate_electric_aircraft_flight_ops_meta_data(Routes_and_Temp,Commercial_Batteries,aircraft,battery_choice,weight_fraction,system_voltage,propulsive_efficiency,percent_adoption,month_no,switch_off)     
-    return fig_5, fig_6 ,fig_7,fig_8  
-  
 @callback(
     Output("EX_aircraft_passenger_range", "figure"),
     Output("EX_aircraft_airports", "figure"),
@@ -517,7 +749,7 @@ def update_flight_ops_passenger_range_plot(aircraft,battery_choice,weight_fracti
     Input("color-mode-switch", "value"), 
 )   
 def update_flight_ops_passenger_range_plot(EX_TOGW,EX_L_D,EX_Max_P,EX_system_V,EX_bat_frac,EX_eta,EX_cell_V,EX_capacity,EX_C_max,EX_e0,EX_Temp,EX_adoption,EX_month,switch_off):  
-    fig_ex_5, fig_ex_6 ,fig_ex_7,fig_ex_8 = generate_EX_aircraft_flight_ops_meta_data(Routes_and_Temp,EX_TOGW,EX_L_D,EX_Max_P,EX_system_V,EX_bat_frac,EX_eta,EX_cell_V, EX_capacity,EX_C_max,EX_e0,EX_Temp,EX_adoption,EX_month,switch_off)  
+    fig_ex_5, fig_ex_6 ,fig_ex_7,fig_ex_8 = generate_EX_aircraft_flight_ops_meta_data(Flight_Ops,EX_TOGW,EX_L_D,EX_Max_P,EX_system_V,EX_bat_frac,EX_eta,EX_cell_V, EX_capacity,EX_C_max,EX_e0,EX_Temp,EX_adoption,EX_month,switch_off)  
     return fig_ex_5, fig_ex_6 ,fig_ex_7,fig_ex_8
   
     

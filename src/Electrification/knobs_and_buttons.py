@@ -14,6 +14,7 @@ def select_battery_brand_metrics(Commercial_Batteries):
                 value = 'All',
                 placeholder = 'All', 
                 disabled = False,
+                clearable=False,
                 style = {'display': True, 'color': 'black'},
                 id="battery_brand_metrics",   
             ),
@@ -21,7 +22,7 @@ def select_battery_brand_metrics(Commercial_Batteries):
         className="mb-4",
     ) 
     return battery_brand
-
+ 
 def select_battery_chemistry_metrics(Commercial_Batteries): 
     All = ['All']
     chemistry_list = All + list(Commercial_Batteries['Chemistry'][1:].unique())
@@ -32,6 +33,7 @@ def select_battery_chemistry_metrics(Commercial_Batteries):
                 value = 'All',
                 placeholder = 'All', 
                 disabled = False,
+                clearable=False,
                 style = {'display': True, 'color': 'black'},
                 id="battery_chemistry_metrics",   
             ),
@@ -48,6 +50,7 @@ def select_battery_x_axis_metrics(Commercial_Batteries):
                 value = list(Commercial_Batteries.columns.values)[4:18][7],
                 placeholder = 'Select Indicator', 
                 disabled = False,
+                clearable=False,
                 style = {'display': True, 'color': 'black'},
                 id="battery_x_axis_metrics",   
             ),
@@ -66,6 +69,7 @@ def select_battery_y_axis_metrics(Commercial_Batteries):
                 value = list(Commercial_Batteries.columns.values)[4:18][9],
                 placeholder = 'Select Indicator', 
                 disabled = False,
+                clearable=False,
                 style = {'display': True, 'color': 'black'},
                 id="battery_y_axis_metrics",   
             ),
@@ -74,6 +78,87 @@ def select_battery_y_axis_metrics(Commercial_Batteries):
     ) 
     return battery_y_axis
  
+ 
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+#  Motor 1 
+# ---------------------------------------------------------------------------------------------------------------------------------------------------  
+def select_motor_manfacturers_metrics(Electric_Motor_Development): 
+    All = ['All']
+    manufacturers_list = All + list(Electric_Motor_Development['Manufacturer'][1:].unique()) 
+    manufacturers= html.Div(
+        [
+            dbc.Label("Select Manufacturer"),
+            dcc.Dropdown(manufacturers_list,
+                value = 'All',
+                placeholder = 'All', 
+                disabled = False,
+                clearable=False,
+                style = {'display': True, 'color': 'black'},
+                id="motor_manufacturer_metrics",   
+            ),
+        ],
+        className="mb-4",
+    ) 
+    return manufacturers
+
+def select_motor_type_metrics(Electric_Motor_Development):
+    All = ['All']
+    motor_type_list = All + list(Electric_Motor_Development['Motor Type'][1:].unique())
+    motor_type  = html.Div(
+        [
+            dbc.Label("Select Type"),
+            dcc.Dropdown(motor_type_list,
+                value = 'All',
+                placeholder = 'All', 
+                disabled = False,
+                clearable=False,
+                style = {'display': True, 'color': 'black'},
+                id="motor_type_metrics",   
+            ),
+        ],
+        className="mb-4",
+    ) 
+    return motor_type
+
+
+def select_motor_x_axis_metrics(Electric_Motor_Development): 
+    motor_x_axis = html.Div(
+        [
+            dbc.Label("X-Axis"),
+            dcc.Dropdown(list(Electric_Motor_Development.columns.values)[4:14],
+                value = list(Electric_Motor_Development.columns.values)[4:14][1],
+                placeholder = 'Select Indicator', 
+                disabled = False,
+                clearable=False,
+                style = {'display': True, 'color': 'black'},
+                id="motor_x_axis_metrics",   
+            ),
+        ],
+        className="mb-4",
+    ) 
+    
+    return motor_x_axis 
+
+
+def select_motor_y_axis_metrics(Electric_Motor_Development):
+    motor_y_axis = html.Div(
+        [
+            dbc.Label("Y-Axis"),
+            dcc.Dropdown(list(Electric_Motor_Development.columns.values)[4:14],
+                value = list(Electric_Motor_Development.columns.values)[4:14][2],
+                placeholder = 'Select Indicator', 
+                disabled = False,
+                clearable=False,
+                style = {'display': True, 'color': 'black'},
+                id="motor_y_axis_metrics",   
+            ),
+        ],
+        className="mb-4",
+    ) 
+    return motor_y_axis
+
+
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Panel 2 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------  
@@ -85,6 +170,7 @@ def select_battery_1(Commercial_Batteries):
                 value       = list(Commercial_Batteries['Battery Name'][1:].unique())[17],
                 placeholder = 'Select Battery', 
                 disabled    = False,
+                clearable=False,
                 style       = {'display': True, 'color': 'black'},
                 id          = "battery_1",   
             ),
@@ -101,6 +187,7 @@ def select_battery_2(Commercial_Batteries):
                 value        = list(Commercial_Batteries['Battery Name'][1:].unique())[8],
                 placeholder  = 'Select Battery', 
                 disabled     = False,
+                clearable=False,
                 style        = {'display': True, 'color': 'black'},
                 id           ="battery_2",   
             ),
@@ -117,6 +204,7 @@ def select_battery_3(Commercial_Batteries):
                 value        = list(Commercial_Batteries['Battery Name'][1:].unique())[0],
                 placeholder  = 'Select Battery',
                 disabled     = False,
+                clearable=False,
                 style        = {'display': True, 'color': 'black'},
                 id           ="battery_3",   
             ),
@@ -128,9 +216,9 @@ def select_battery_3(Commercial_Batteries):
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Panel 3 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------  
-def select_battery_industry_dev_panel(Battery_Research):
+def select_battery_industry_dev_panel(Battery_Development):
     All = ['All']
-    sector_list = All + list(Battery_Research['Sector'][1:].unique())
+    sector_list = All + list(Battery_Development['Sector'][1:].unique())
     battery_industry = html.Div(
         [
             dbc.Label("Select Sector"), 
@@ -138,6 +226,7 @@ def select_battery_industry_dev_panel(Battery_Research):
                 value = 'All',
                 placeholder = 'All', 
                 disabled = False,
+                clearable=False,
                 style = {'display': True, 'color': 'black'},
                 id="battery_sector",   
             ),
@@ -146,7 +235,7 @@ def select_battery_industry_dev_panel(Battery_Research):
     ) 
     return battery_industry
 
-def select_battery_type_dev_panel(Battery_Research): 
+def select_battery_type_dev_panel(Battery_Development): 
     type_list =  ['All','Li-Ion','Li-Sulphur','Metal-Air','Li-Silicon']
     battery_type = html.Div(
         [
@@ -155,6 +244,48 @@ def select_battery_type_dev_panel(Battery_Research):
                 value = 'All',
                 placeholder = 'All', 
                 disabled = False,
+                clearable=False,
+                style = {'display': True, 'color': 'black'},
+                id="battery_type",
+            ),
+        ],
+        className="mb-4",
+    ) 
+    return battery_type 
+
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+# Panel 4 
+# ---------------------------------------------------------------------------------------------------------------------------------------------------  
+def select_battery_industry_dev_panel(Battery_Development):
+    All = ['All']
+    sector_list = All + list(Battery_Development['Sector'][1:].unique())
+    battery_industry = html.Div(
+        [
+            dbc.Label("Select Sector"), 
+            dcc.Dropdown(sector_list,
+                value = 'All',
+                placeholder = 'All', 
+                disabled = False,
+                clearable=False,
+                style = {'display': True, 'color': 'black'},
+                id="battery_sector",   
+            ),
+        ],
+        className="mb-4",
+    ) 
+    return battery_industry
+
+def select_battery_type_dev_panel(Battery_Development): 
+    type_list =  ['All','Li-Ion','Li-Sulphur','Metal-Air','Li-Silicon']
+    battery_type = html.Div(
+        [
+            dbc.Label("Select Battery Type"),
+            dcc.Dropdown(type_list,
+                value = 'All',
+                placeholder = 'All', 
+                disabled = False,
+                clearable=False,
                 style = {'display': True, 'color': 'black'},
                 id="battery_type",
             ),
@@ -163,17 +294,21 @@ def select_battery_type_dev_panel(Battery_Research):
     ) 
     return battery_type
 
+
+
+
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Flight Ops Panel 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------  
 def select_flight_ops_electric_aircraft_battery(Commercial_Batteries):
     electric_aircraft_battery = html.Div(
         [ 
-            dbc.Label("Battery"),
+            dbc.Label("Battery Cell"),
             dcc.Dropdown(list(Commercial_Batteries['Battery Name'][1:].unique()),
                 value        = Commercial_Batteries['Battery Name'][13],
                 placeholder  = Commercial_Batteries['Battery Name'][13], 
                 disabled     = False,
+                clearable=False,
                 style        = {'display': True, 'color': 'black'},
                 id           ="electric_aircraft_battery",   
             ),
@@ -181,19 +316,17 @@ def select_flight_ops_electric_aircraft_battery(Commercial_Batteries):
         className="mb-4", 
     )  
     return electric_aircraft_battery 
- 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-# Panel 2
-# ---------------------------------------------------------------------------------------------------------------------------------------------------  
+  
 def select_flight_ops_electric_aircraft():
     flight_ops_electric_aircraft = html.Div(
         [
-            dbc.Label("Aircraft"),
+            dbc.Label("Aircraft Model"),
             dcc.Dropdown(
-                ["Boeing 737",'Airbus A320'],
-                value = 'Boeing 737',
-                placeholder = 'Boeing 737', 
+                ['ATR 72-600','Embraer 190','Boeing 737 MAX-8','Airbus A320 neo'],
+                value = 'Boeing 737 MAX-8',
+                placeholder = 'Boeing 737 MAX-8',  
                 disabled = False,
+                clearable=False,
                 style = {'display': True, 'color': 'black'},
                 id="electric_aircraft_type",   
             ),
@@ -207,7 +340,7 @@ def select_flight_ops_electric_aircraft_batt_mass_frac():
     
     battery_mass_fraction = html.Div(
         [
-            dbc.Label("Battery Mass Fraction"),
+            dbc.Label("Battery Mass Fraction (%)"),
             dcc.Slider(20, 100, 5,
                 value= 50,
                 id="battery_mass_fraction", 
@@ -220,7 +353,7 @@ def select_flight_ops_electric_aircraft_batt_mass_frac():
 def select_flight_ops_electric_fleet_adoption(): 
     fleet_adoption = html.Div(
         [
-            dbc.Label("Fleet Adoption"),
+            dbc.Label("Fleet Adoption (%)"),
             dcc.Slider(0, 100, 10,
                 value=100,
                 id="electric_aircraft_percent_adoption", 
@@ -230,10 +363,24 @@ def select_flight_ops_electric_fleet_adoption():
     )
     return  fleet_adoption
 
+def select_cost_of_electricity(): 
+    charging_cost = html.Div(
+        [
+            dbc.Label("Cost of Electricity ($/kWh)"),
+            dcc.Slider(50, 500, 50,
+                value=150,
+                id="electric_aircraft_charging_cost", 
+            ),
+        ],
+        className="mb-4",
+    ) 
+    return charging_cost
+
+
 def select_electric_aircraft_system_voltage():
     system_voltage = html.Div(
         [
-            dbc.Label("System Voltage"),
+            dbc.Label("System Voltage (V)"),
             dcc.Slider(400, 800, 50,
                 value=600,
                 id="electric_aircraft_system_voltage", 
@@ -241,12 +388,11 @@ def select_electric_aircraft_system_voltage():
         ],
         className="mb-4",
     ) 
-    return system_voltage
-
+    return system_voltage 
 def select_electric_aircraft_propulsive_efficiency():
     propulsive_efficiency = html.Div(
         [
-            dbc.Label("Propulsive Efficiency"),
+            dbc.Label("Propulsive Efficiency (%)"),
             dcc.Slider(50, 100, 5,
                 value=95,
                 id="electric_aircraft_efficiency", 
