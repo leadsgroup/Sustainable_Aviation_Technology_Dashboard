@@ -71,8 +71,6 @@ def generate_EX_aircraft_flight_ops(Routes_and_Temp,TOGW,L_D,Max_P,system_V,weig
     n_parallel              = Q_bat/q_cell 
     n_parallel_min          = I_bat/i_max 
     
-    print(n_parallel_min)
-    print(n_parallel)
     if n_parallel_min  <  n_parallel: 
         Range    = (e_cell/9.81) * L_div_D * (weight_fraction/100)* eta_0
     else:  
