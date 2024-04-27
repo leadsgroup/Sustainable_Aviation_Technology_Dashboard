@@ -153,7 +153,7 @@ def generate_saf_dev_map(Commercial_SAF,selected_feedstock,selected_process,swit
  
 def generate_saf_flight_operations_plots(Flight_Ops,Commercial_SAF,feedstocks,selected_fuels,selected_feedstock, 
                                     percent_fuel_use, feedstock_producing_states,selected_airpots,
-                                    percent_adoption,switch_off):   
+                                    percent_adoption,SAF_dollars_per_gal,switch_off):   
      
     template             = pio.templates["minty"] if switch_off else pio.templates["minty_dark"]    
     map_style            = None if switch_off else 'dark'     
@@ -168,14 +168,26 @@ def generate_saf_flight_operations_plots(Flight_Ops,Commercial_SAF,feedstocks,se
     fuel_percentages_list += [100]
     fuels_percentages     = np.diff(np.array(fuel_percentages_list))/100  
     
-    # Step 2: determine the percentage of neat (pure) saf and Jet-A1 using blending ratios  
+    # Step 2: determine the percentage of neat (pure) saf and Jet-A1 using blending ratios   
+    if Commercial_SAF['Fuel Name'][0] not in selected_fuels:  
+        selected_fuels    = [Commercial_SAF['Fuel Name'][0]] + selected_fuels
+        fuels_percentages = np.hstack((np.array([0]),fuels_percentages)) 
+    mask                = Commercial_SAF['Fuel Name'].isin(selected_fuels)
+    fuels_used          = Commercial_SAF[mask] 
+    
     num_fuels = len(selected_fuels)
-    cumulative_fuel_use = np.zeros(num_fuels) 
-    for i in range(1,num_fuels):            
+    cumulative_fuel_use   = np.zeros(num_fuels) 
+    SAF_LCA_val           = np.zeros(num_fuels) 
+    Jet_A_LCA_val         = np.zeros(num_fuels)  
+    
+    for i in range(1,num_fuels):
         # loop through fuels and get percentage of fuel used by each type
-        blend_ratio            = np.array(Commercial_SAF.loc[Commercial_SAF['Fuel Name'] == selected_fuels[i]]['Maximum Blend Ratio']) 
-        cumulative_fuel_use[i] = fuels_percentages[i]* blend_ratio[0]/100
-    cumulative_fuel_use[0]  = 1 - np.sum(cumulative_fuel_use[1:])
+        blend_ratio             = np.array(Commercial_SAF.loc[Commercial_SAF['Fuel Name'] == selected_fuels[i]]['Maximum Blend Ratio']) 
+        cumulative_fuel_use[i]  = fuels_percentages[i]* blend_ratio/100
+        SAF_LCA_val[i]          = Commercial_SAF[Commercial_SAF['Fuel Name'] == selected_fuels[i]]['LCA Value']
+    cumulative_fuel_use[0]      = 1 - np.sum(cumulative_fuel_use[1:])
+    SAF_LCA_val[0]   = 89
+    Jet_A_LCA_val[0] = 89
         
     # Step 6: Filter flight data based on option selected: i.e. top 10, top 20, top 50, all airpots 
     Airport_Routes     = Flight_Ops[['Passengers','Origin Airport','Destination City']]
@@ -206,13 +218,11 @@ def generate_saf_flight_operations_plots(Flight_Ops,Commercial_SAF,feedstocks,se
     total_fuel_volume_required = np.sum(np.array(Flight_at_SAF_Airports_Using_SAF['Total Fuel Per Route (Gal)']))
     fuel_volumes               = cumulative_fuel_use*total_fuel_volume_required  
     
-    # Step 10: Sort SAF's by feedstock and sum all fuel volumes based on fuel  
-    mask                              = Commercial_SAF['Fuel Name'].isin(selected_fuels)
-    fuels_used                        = Commercial_SAF[mask]    
+    # Step 10: Sort SAF's by feedstock and sum all fuel volumes based on fuel   
     fuels_used['Total Fuel Volume']   = fuel_volumes 
     relative_crop_area                = fuels_used['Total Fuel Volume']/fuels_used['SAF Gallons per Acre']
     fuels_used['Requires Acres']      = relative_crop_area
-    select_fuels                      = fuels_used[['Source','Total Fuel Volume','LCEF (gCO2e/MJ)','Requires Acres']].groupby('Source', as_index=False).sum()[fuels_used[['Source','Total Fuel Volume','LCEF (gCO2e/MJ)','Requires Acres']].columns]
+    select_fuels                      = fuels_used[['Source','Total Fuel Volume','Requires Acres']].groupby('Source', as_index=False).sum()[fuels_used[['Source','Total Fuel Volume','Requires Acres']].columns]
     required_crop_area                = np.array(select_fuels.loc[select_fuels['Source'] == selected_feedstock]['Requires Acres'])
     
     # Step 11: Determine how many states will source the feedstock under consideration  
@@ -232,7 +242,7 @@ def generate_saf_flight_operations_plots(Flight_Ops,Commercial_SAF,feedstocks,se
     total_vol  = 0  
     while  total_vol<required_crop_area[0] :  
             total_vol += Used_Feedstock.loc[Used_Feedstock.index[idx]]['Acres Harvested']
-            Used_Feedstock["Feedstock Usage"][Used_Feedstock.index[idx]] = 0.3  
+            Used_Feedstock["Feedstock Usage"][Used_Feedstock.index[idx]] = 0.1 
             idx += 1      
             
     #break_flag = True 
@@ -244,17 +254,35 @@ def generate_saf_flight_operations_plots(Flight_Ops,Commercial_SAF,feedstocks,se
             #idx += 1     
         #except: 
             #break_flag = False
+     
+ # Steps 14 and 15 Determine Cost per Seat Mile and Emissions  
+    CASM_jet_A  = np.zeros(12) 
+    CASM_SAF    = np.zeros(12) 
+    w_SAF       = np.zeros(12) 
+    w_o_SAF     = np.zeros(12) 
+    gallons_to_Liters  = 3.78541
+    for m_i in range(12): 
+        Non_SAF_Flights_Mo                  = Non_SAF_Flights.loc[Non_SAF_Flights['Month'] == m_i+1 ]   
+        Flight_at_SAF_Airports_Using_SAF_Mo = Flight_at_SAF_Airports_Using_SAF.loc[Flight_at_SAF_Airports_Using_SAF['Month'] == m_i+1 ]   
+     
     
-    # Step 14: Determine Emissions 
-    MJ_per_Liter            = 35.4
-    Liters_per_Gal          = 0.264172 
-    SAF_emissions           = select_fuels['LCEF (gCO2e/MJ)']* select_fuels['Total Fuel Volume']* MJ_per_Liter*Liters_per_Gal
-    Conventional_Emissions  = 89* Flight_Ops['Total Fuel Per Route (Gal)']* MJ_per_Liter*Liters_per_Gal
-    
-    # Step 15 Determine Cost per Seat Mile
-    ASM_jet_A             = np.sum(Non_SAF_Flights['Distance (miles)'] * Non_SAF_Flights['Passengers'])
-    Total_Fuel_Cost_jet_A = np.sum(Non_SAF_Flights['Fuel Cost']) 
-    CASM_jet_A            = 100*Total_Fuel_Cost_jet_A/ASM_jet_A    
+        total_SAF_fuel_volume_required_mo   = np.sum(np.array(Flight_at_SAF_Airports_Using_SAF_Mo['Total Fuel Per Route (Gal)']))  
+        SAF_volumes_mo                      = cumulative_fuel_use*total_SAF_fuel_volume_required_mo 
+        Jet_A_fuel_volume_required_mo       = np.sum(np.array(Non_SAF_Flights_Mo['Total Fuel Per Route (Gal)']))    
+        
+        
+        ASM_jet_A                           = np.sum(Non_SAF_Flights_Mo['Distance (miles)'] * Non_SAF_Flights_Mo['Passengers'])
+        Total_Fuel_Cost_jet_A               = np.sum(Non_SAF_Flights_Mo['Fuel Cost']) 
+        CASM_jet_A[m_i]                     = 100*Total_Fuel_Cost_jet_A/ASM_jet_A     
+                     
+        ASM_SAF                             = np.sum(Flight_at_SAF_Airports_Using_SAF_Mo['Distance (miles)'] * Flight_at_SAF_Airports_Using_SAF_Mo['Passengers']) 
+        Total_Fuel_Cost_SAF                 = np.sum(Flight_at_SAF_Airports_Using_SAF_Mo['Total Fuel Per Route (Gal)'] ) * SAF_dollars_per_gal 
+        CASM_SAF[m_i]                       = 100*Total_Fuel_Cost_SAF/ASM_SAF   
+         
+        w_SAF[m_i]   = np.sum(fuels_used['LCEF (gCO2e/MJ)']*fuels_used['Volumetric Energy Density (MJ/L)']*SAF_volumes_mo*gallons_to_Liters) +\
+            Commercial_SAF.loc[0]['LCEF (gCO2e/MJ)']*Commercial_SAF.loc[0]['Volumetric Energy Density (MJ/L)']*np.sum(Jet_A_fuel_volume_required_mo)*gallons_to_Liters
+        
+        w_o_SAF[m_i] = Commercial_SAF.loc[0]['LCEF (gCO2e/MJ)']*Commercial_SAF.loc[0]['Volumetric Energy Density (MJ/L)']*(np.sum(SAF_volumes_mo) + Jet_A_fuel_volume_required_mo) *gallons_to_Liters
         
     
     #================================================================================================================================================  
@@ -282,7 +310,7 @@ def generate_saf_flight_operations_plots(Flight_Ops,Commercial_SAF,feedstocks,se
             lat = lats,
             mode = 'lines',
             opacity= 1,
-            line = dict(width = 1,color = colors[2]), ))
+            line = dict(width = 1,color = colors[10]), ))
     
     lons       = np.empty(3 * len(Flight_at_SAF_Airports_Using_SAF))
     lons[::3]  = Flight_at_SAF_Airports_Using_SAF['Origin Longitude (Deg.)']
@@ -299,7 +327,7 @@ def generate_saf_flight_operations_plots(Flight_Ops,Commercial_SAF,feedstocks,se
             lat = lats,
             mode = 'lines',
             opacity= 1,
-            line = dict(width = 1,color = colors[4]), ))
+            line = dict(width = 1,color = colors[1]), ))
   
     # Airports  
     fig_1.add_trace(go.Scattergeo( 
@@ -338,13 +366,13 @@ def generate_saf_flight_operations_plots(Flight_Ops,Commercial_SAF,feedstocks,se
                                y = Flight_at_SAF_Airports_Using_SAF['Passengers'],
                                name='SAF', 
                                xbins=dict(start=0, end=4000, size=500),
-                               marker_color=colors[4],))
+                               marker_color=colors[1],))
     fig_3.add_trace(go.Histogram(histfunc="sum",
                                x= Non_SAF_Flights['Distance (miles)'],
                                y = Non_SAF_Flights['Passengers'],
                                name='Jet-A',
                                xbins=dict(start=0, end=4000, size=500),
-                               marker_color=colors[2],)) 
+                               marker_color=colors[10],)) 
     
     # The two histograms are drawn on top of another
     fig_3.update_layout(barmode='stack', 
@@ -366,7 +394,7 @@ def generate_saf_flight_operations_plots(Flight_Ops,Commercial_SAF,feedstocks,se
     Alphabetical_List  = Busiest_Airports.sort_values(by=['Origin Airport'])  
     fig_4.add_trace(go.Bar( x=list(Alphabetical_List['Passengers'].index),
                        y=np.array(Alphabetical_List['Passengers']),
-                       marker_color=colors[4])) 
+                       marker_color=colors[1])) 
     fig_4.update_layout(xaxis_title_text='Airport', 
                       yaxis_title_text='Passengers', 
                       height        = 300, 
@@ -379,7 +407,7 @@ def generate_saf_flight_operations_plots(Flight_Ops,Commercial_SAF,feedstocks,se
     # Determine Ratio of SAF to Jet-A Routes
     #================================================================================================================================================    
     fig_5                       = go.Figure() 
-    sector_colors               = [colors[4],colors[2]]
+    sector_colors               = [colors[1],colors[10]]
     Feasible_Passenger_Miles    = np.sum(np.array(Flight_at_SAF_Airports_Using_SAF['Passengers'])* np.array(Flight_at_SAF_Airports_Using_SAF['Distance (miles)']))
     Infeasible_Passenger_Miles  = np.sum(np.array(Non_SAF_Flights[['Passengers']])* np.array(Non_SAF_Flights[['Distance (miles)']]))
     labels                      = ["SAF", "Jet-A"] 
@@ -398,7 +426,7 @@ def generate_saf_flight_operations_plots(Flight_Ops,Commercial_SAF,feedstocks,se
  
     Land_Use  = pd.concat([Used_Feedstock, non_feedstock_states] )    
     fig_2 = px.choropleth(Land_Use, geojson=counties, locations='FIPS',color = 'Feedstock Usage',
-                           color_continuous_scale="algae", 
+                           color_continuous_scale="turbid", 
                            hover_data=["County","State","Acres Harvested"],
                            scope='usa',                          
                            range_color=(0,1)
@@ -408,32 +436,73 @@ def generate_saf_flight_operations_plots(Flight_Ops,Commercial_SAF,feedstocks,se
                          )
     fig_2.update(layout_coloraxis_showscale=False)
     
-    ##================================================================================================================================================      
-    ## Emissions Comparison 
-    ##================================================================================================================================================                  
-    # Barchart of  Conventional_Emissions  and  SAF_emissions 
-    
     #================================================================================================================================================      
     # Cost Per Seat Mile
     #================================================================================================================================================   
     fig_6 = go.Figure()       
-    #fig_6.add_trace(go.Scatter(x=month_names, y=CASM_SAF, name = 'Electric',
-                             #line=dict(color=sector_colors[0], width=4)))  
-    #fig_6.add_trace(go.Scatter(x=month_names, y=CASM_jet_A, name='Jet-A',
-                             #line=dict(color=sector_colors[4], width=4)))  
-    #fig_6.update_layout( 
-                      #height           = 400, 
-                      #width            = 600, 
-                      #margin           = {'t':50,'l':0,'b':0,'r':0},
-                      #yaxis_title_text ='Cost Per Seat Mile* (cents)', # yaxis label
-                      #yaxis_range      = [0,10],
-                      #font=dict(  size=font_size ),
-                      #legend=dict(
-                          #yanchor="top",
-                          #y=0.99,
-                          #xanchor="center",
-                          #x=0.4 )) 
-                           
+    month_names         = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']    
+    fig_6.add_trace(go.Scatter(x=month_names, y=CASM_SAF, name = 'SAF',
+                             line=dict(color= colors[1], width=4)))  
+    fig_6.add_trace(go.Scatter(x=month_names, y=CASM_jet_A, name='Jet-A',
+                             line=dict(color= colors[10], width=4)))  
+    fig_6.update_layout( 
+                      height           = 400, 
+                      width            = 600, 
+                      margin           = {'t':50,'l':0,'b':0,'r':0},
+                      yaxis_title_text ='Cost Per Seat Mile* (cents)', 
+                      font=dict(  size=font_size ),
+                      legend=dict(
+                          yanchor="top",
+                          y=0.99,
+                          xanchor="center",
+                          x=0.4 )) 
+    #================================================================================================================================================      
+    # Emissions Comparison 
+    #================================================================================================================================================   
+    month_names         = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']      
+    fig_8               = go.Figure() 
+    fig_8.add_trace(go.Scatter(x=month_names, y=w_SAF*1e-6, name = 'Aircraft Using SAF in Fleet',
+                             line=dict(color=colors[1], width=4)))  
+    fig_8.add_trace(go.Scatter(x=month_names, y=w_o_SAF*1e-6, name='Aircraft Using Jet-A in Fleet',
+                             line=dict(color=colors[10], width=4)))   
+    fig_8.update_layout( 
+                      height           = 400, 
+                      width            = 600, 
+                      margin           = {'t':50,'l':0,'b':0,'r':0},
+                      yaxis_title_text ='CO2e (Ton)', # yaxis label
+                      font=dict(  size=font_size ),
+                      legend=dict(
+                          yanchor="top",
+                          y=0.99,
+                          xanchor="center",
+                          x=0.4 )) 
+    
+    #================================================================================================================================================      
+    # Life Cycle Analysis
+    #================================================================================================================================================   
+    Jet_A_name = ["Only Jet-A"]*num_fuels
+    Jet_A_data = {'Cumulative Fuel': Jet_A_name,
+            'Fuels' : selected_fuels,
+            'Cumulative LCA Value'        : Jet_A_LCA_val,
+            } 
+    SAF_name = ["With SAF"]*num_fuels
+    SAF_data = {'Cumulative Fuel': SAF_name,
+            'Fuels' : selected_fuels,
+            'Cumulative LCA Value'        : SAF_LCA_val*cumulative_fuel_use,
+            } 
+    Jet_A_Emissions = pd.DataFrame(Jet_A_data)
+    SAF_Emissions   = pd.DataFrame(SAF_data)
+    frames = [Jet_A_Emissions,SAF_Emissions] 
+    Emissions = pd.concat(frames)
+    fig_7               =   px.bar(Emissions,
+                                   x="Cumulative Fuel",
+                                   y="Cumulative LCA Value",
+                                   color= "Fuels",
+                                   color_discrete_sequence=px.colors.qualitative.Pastel)  
+    fig_7.update_layout(xaxis_title=None,
+                      showlegend=False,
+                      font=dict(  size=font_size ),
+                      ) 
                           
    ##================================================================================================================================================   
 
@@ -443,8 +512,10 @@ def generate_saf_flight_operations_plots(Flight_Ops,Commercial_SAF,feedstocks,se
     fig_4["layout"]["template"] = template  
     fig_5["layout"]["template"] = template 
     fig_6["layout"]["template"] = template 
+    fig_7["layout"]["template"] = template 
+    fig_8["layout"]["template"] = template 
         
-    return fig_1, fig_2,fig_3, fig_4, fig_5 
+    return fig_1, fig_2,fig_3, fig_4, fig_5 , fig_6, fig_7, fig_8
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # SAF Bar

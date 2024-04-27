@@ -24,9 +24,10 @@ def select_flight_ops_BDL_aircraft_weight():
     
     W0  = html.Div(
         [
-            dbc.Label("Takeoff Gross Weight (lbs)"),
-            dcc.Slider(100000,200000, 20000,
-                value= 160000,
+            dbc.Label("Takeoff Gross Weight (Ton)"),
+            dcc.Slider(25,200,5,
+                value= 60,
+                marks = {25: "25", 50: "50", 75: "75", 100: "100", 125: "125", 150: "150", 175: "175", 200: "200"},
                 id="EX_TOGW", 
             ),
         ],
@@ -66,9 +67,9 @@ def select_BDL_max_cell_capacity():
     
     capacity = html.Div(
         [
-            dbc.Label("Capacity (mAh)"),
-            dcc.Slider(3000, 5000, 500,
-                value= 4000,
+            dbc.Label("Capacity (Ah)"),
+            dcc.Slider(3, 10, 1,
+                value= 4,
                 id="EX_capacity", 
             ),
         ],
@@ -81,8 +82,8 @@ def select_BDL_max_cell_max_C():
     C_max = html.Div(
         [
             dbc.Label("Max C-Rate"),
-            dcc.Slider(3, 15, 1,
-                value= 9,
+            dcc.Slider(1, 10, 1,
+                value= 5,
                 id="EX_C_max", 
             ),
         ],
@@ -124,7 +125,7 @@ def select_flight_ops_BDL_batt_mass_frac():
     
     battery_mass_fraction = html.Div(
         [
-            dbc.Label("Battery Mass Fraction"),
+            dbc.Label("Battery Mass Fraction (to MOTW)"),
             dcc.Slider(10, 100, 10,
                 value= 50,
                 id="EX_battery_mass_fraction", 
@@ -150,15 +151,29 @@ def select_flight_ops_BDL_fleet_adoption():
 def select_BDL_system_voltage():
     system_voltage = html.Div(
         [
-            dbc.Label("System Voltage (V)"),
-            dcc.Slider(400, 800, 50,
-                value=600,
+            dbc.Label("System Voltage (kV)"),
+            dcc.Slider(0.6, 2, 0.2,
+                value=1,
                 id="EX_system_voltage", 
             ),
         ],
         className="mb-4",
     ) 
     return system_voltage
+
+def select_BDL_cost_of_electricity(): 
+    charging_cost = html.Div(
+        [
+            dbc.Label("Cost of Electricity ($/kWh)"),
+            dcc.Slider(50, 500, 50,
+                value=150,
+                id="EX_aircraft_charging_cost", 
+            ),
+        ],
+        className="mb-4",
+    ) 
+    return charging_cost
+ 
 
 def select_BDL_propulsive_efficiency():
     propulsive_efficiency = html.Div(

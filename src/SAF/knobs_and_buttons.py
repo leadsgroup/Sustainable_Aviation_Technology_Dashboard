@@ -142,7 +142,7 @@ def select_saf_feedstock_states():
     states_5  = ["Oklahoma","Oregon","Pennsylvania", "Rhode Island","South Carolina","South Dakota","North Dakota","Tennessee"]
     states_6  = ["Texas","Utah",  "Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming"]  
     
-    state_list_1 = html.Div([ dcc.Checklist( options = states_1, value  =["Colorado"], id="feedstock_states_1", ), ],className="mb-4",) 
+    state_list_1 = html.Div([ dcc.Checklist( options = states_1, value  =["Arkansas","California","Colorado"], id="feedstock_states_1", ), ],className="mb-4",) 
     state_list_2 = html.Div([ dcc.Checklist( options = states_2, value  =["Illinois", "Indiana","Iowa","Kansas","Kentucky"], id="feedstock_states_2", ), ],className="mb-4",)
     state_list_3 = html.Div([ dcc.Checklist( options = states_3, value  = ["Missouri", "Nebraska"], id="feedstock_states_3", ), ],className="mb-4",)
     state_list_4 = html.Div([ dcc.Checklist( options = states_4, value  =  ["Ohio","Oklahoma"], id="feedstock_states_4", ), ],className="mb-4",) 
@@ -188,3 +188,16 @@ def select_feedstock_source(Commercial_SAF):
         className="mb-4",
     ) 
     return saf_process
+
+def select_saf_cost(): 
+    saf_cost = html.Div(
+        [
+            dbc.Label("SAF Cost ($/gal)"),
+            dcc.Slider(2, 20, 2,
+                value=8,
+                id="SAF_dollars_per_gal", 
+            ),
+        ],
+        className="mb-4",
+    )
+    return saf_cost

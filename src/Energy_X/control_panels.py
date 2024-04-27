@@ -10,6 +10,7 @@ def generate_Energy_X_aircraft_flight_ops_panel(US_Temperature_F):
     BDL_flight_ops_fleet_adoption                       = select_flight_ops_BDL_fleet_adoption() 
     BDL_aircraft_system_voltage                         = select_BDL_system_voltage() 
     BDL_propulsive_efficiency                           = select_BDL_propulsive_efficiency()  
+    BDL_cost_of_electricity                             = select_BDL_cost_of_electricity()
     
     flight_ops_aircraft_panel = dbc.Card([
                                         BDL_flight_ops_aircraft_weight, 
@@ -19,7 +20,8 @@ def generate_Energy_X_aircraft_flight_ops_panel(US_Temperature_F):
                                         BDL_flight_ops_batt_mass_frac,
                                         BDL_aircraft_system_voltage, 
                                         BDL_flight_ops_fleet_adoption,
-                                        BDL_flight_ops_month],body=True,)   
+                                        BDL_flight_ops_month,
+                                        BDL_cost_of_electricity],body=True,)   
     return  flight_ops_aircraft_panel
 
 def generate_Energy_X_battery_panel():    

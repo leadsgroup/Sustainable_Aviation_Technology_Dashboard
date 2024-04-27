@@ -320,7 +320,7 @@ def select_flight_ops_electric_aircraft_battery(Commercial_Batteries):
 def select_flight_ops_electric_aircraft():
     flight_ops_electric_aircraft = html.Div(
         [
-            dbc.Label("Aircraft Model"),
+            dbc.Label("All-Electric Aircraft Model"),
             dcc.Dropdown(
                 ['ATR 72-600','Embraer 190','Boeing 737 MAX-8','Airbus A320 neo'],
                 value = 'Boeing 737 MAX-8',
@@ -380,9 +380,9 @@ def select_cost_of_electricity():
 def select_electric_aircraft_system_voltage():
     system_voltage = html.Div(
         [
-            dbc.Label("System Voltage (V)"),
-            dcc.Slider(400, 800, 50,
-                value=600,
+            dbc.Label("System Voltage (kV)"),
+            dcc.Slider(0.6, 2, 0.2,
+                value=1,
                 id="electric_aircraft_system_voltage", 
             ),
         ],

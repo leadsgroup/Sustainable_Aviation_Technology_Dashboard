@@ -367,18 +367,16 @@ def generate_flight_ops_map(Routes_and_Temp,Commercial_Batteries,aircraft,batter
         #S_ref          = 464.3
         #L_div_D        = CL_cruise/CD_cruise      
              
-    CO2e_per_mile      = 9.0736                 
-    Wh_per_kg_to_J     = 3600.0
-    Ah_to_C            = 3600.0  
-    V_bat              = system_voltage
-    eta_0              = propulsive_efficiency/100 
+    CO2e_per_passenger_mile     = 0.0002         # in Ton  0.4 lb per passenger/ mile  Refhttps://8billiontrees.com/carbon-offsets-credits/carbon-ecological-footprint-calculators/carbon-footprint-driving-vs-flying/#:~:text=It%20is%20estimated%20that%20the,2%20per%20mile%20per%20passenger.
+    Wh_per_kg_to_J              = 3600.0
+    Ah_to_C                     = 3600.0  
+    V_bat                       = system_voltage*1000
+    eta_0                       = propulsive_efficiency/100 
     
     #================================================================================================================================================  
     # Compute Feasible Routes 
     #================================================================================================================================================    
-    # Compute Range  
-    months          = ['January', 'February', 'March', 'April', 'May', 'June', 'July','August', 'September', 'October', 'November', 'December']      
-    month           =  months[month_no] 
+    # Compute Range
     data            = Commercial_Batteries[Commercial_Batteries['Battery Name'] == battery_choice]  
     data            = Commercial_Batteries[Commercial_Batteries['Battery Name'] == battery_choice] 
     V_cell          = np.array(data['Nominal Voltage (V)'])[0]
@@ -401,7 +399,9 @@ def generate_flight_ops_map(Routes_and_Temp,Commercial_Batteries,aircraft,batter
         Range = 0 
     Range_mi = Range * 0.000621371 
     
-    # Compute distances between departure and destimation points 
+    # Compute distances between departure and destimation points   
+    months               = ['January', 'February', 'March', 'April', 'May', 'June', 'July','August', 'September', 'October', 'November', 'December']      
+    month                =  months[month_no]  
     Routes_and_Temp_Mo   = Routes_and_Temp[Routes_and_Temp['Month'] == month_no+1 ]     
     Infeasible_Routes_1  = Routes_and_Temp_Mo[Routes_and_Temp_Mo['Distance (miles)'] > Range_mi ]  
     Feasible_Routes_1    = Routes_and_Temp_Mo[Routes_and_Temp_Mo['Distance (miles)'] < Range_mi ] 
@@ -425,6 +425,7 @@ def generate_flight_ops_map(Routes_and_Temp,Commercial_Batteries,aircraft,batter
     fig_4                = go.Figure()
     airport_marker_size  = 5
     airport_marker_color = "white"
+    colors               = px.colors.qualitative.Pastel  
  
     # Flight Paths 
     lons       = np.empty(3 * len(Infeasible_Routes))
@@ -489,20 +490,19 @@ def generate_flight_ops_map(Routes_and_Temp,Commercial_Batteries,aircraft,batter
     #================================================================================================================================================      
     # Passenger vs Distance Traveled 
     #================================================================================================================================================     
-    fig_5               = go.Figure()
-    sector_colors       = px.colors.qualitative.Pastel 
+    fig_5               = go.Figure() 
     fig_5.add_trace(go.Histogram(histfunc="sum",
                                x= Feasible_Routes['Distance (miles)'],
                                y = Feasible_Routes['Passengers'],
                                name='All Electric', 
                                xbins=dict(start=0, end=4000, size=500),
-                               marker_color=sector_colors[0],))
+                               marker_color=colors[0],))
     fig_5.add_trace(go.Histogram(histfunc="sum",
                                x= Infeasible_Routes['Distance (miles)'],
                                y = Infeasible_Routes['Passengers'],
                                name='Fossil Fuel',
                                xbins=dict(start=0, end=4000, size=500),
-                               marker_color=sector_colors[2],)) 
+                               marker_color=colors[10],)) 
     
     # The two histograms are drawn on top of another
     fig_5.update_layout(barmode='stack', 
@@ -517,15 +517,14 @@ def generate_flight_ops_map(Routes_and_Temp,Commercial_Batteries,aircraft,batter
     #================================================================================================================================================      
     # Busiest Airports 
     #================================================================================================================================================    
-    fig_6 = go.Figure()
-    sector_colors      = px.colors.qualitative.Pastel 
+    fig_6 = go.Figure()  
     Airport_Routes     = Feasible_Routes[['Passengers','Origin Airport','Destination City']]
     Cumulative_Flights = Airport_Routes.groupby(['Origin Airport']).sum()
     Busiest_Airports   = Cumulative_Flights.sort_values(by=['Passengers'], ascending = False).head(10) 
     Alphabetical_List  = Busiest_Airports.sort_values(by=['Origin Airport'])  
     fig_6.add_trace(go.Bar( x=list(Alphabetical_List['Passengers'].index),
                        y=np.array(Alphabetical_List['Passengers']),
-                       marker_color=sector_colors[0])) 
+                       marker_color=colors[0])) 
     fig_6.update_layout(xaxis_title_text='Airport', 
                       yaxis_title_text='Passengers', 
                       height        = 300, 
@@ -538,15 +537,12 @@ def generate_flight_ops_map(Routes_and_Temp,Commercial_Batteries,aircraft,batter
     # Determine Ratio of Electrified to Jet-A Routes
     #================================================================================================================================================    
     fig_7                       = go.Figure()
-    colors                      = px.colors.qualitative.Pastel 
-    sector_colors               = [colors[0],colors[2]]
     Feasible_Passenger_Miles    = np.sum(np.array(Feasible_Routes['Passengers'])* np.array(Feasible_Routes['Distance (miles)']))
-    Infeasible_Passenger_Miles  = np.sum(np.array(Infeasible_Routes[['Passengers']])* np.array(Infeasible_Routes[['Distance (miles)']]))
-    Total_Passenger_Miles       = np.sum(np.array(Routes_and_Temp[['Passengers']])* np.array(Routes_and_Temp[['Distance (miles)']]))  
+    Infeasible_Passenger_Miles  = np.sum(np.array(Infeasible_Routes[['Passengers']])* np.array(Infeasible_Routes[['Distance (miles)']])) 
     labels                      = ["All Electric", "Fossil Fuel"] 
     fig_7.add_trace(go.Pie(labels=labels,
                          values=[Feasible_Passenger_Miles, Infeasible_Passenger_Miles],
-                         marker_colors=sector_colors)) 
+                         marker_colors=[colors[0],colors[10]])) 
     fig_7.update_traces(hole=.4, hoverinfo="label+percent+name") 
     fig_7.update_layout( height     = 400, 
                       width         = 600, 
@@ -580,9 +576,9 @@ def generate_flight_ops_map(Routes_and_Temp,Commercial_Batteries,aircraft,batter
         
         # concatenate feasible and infeasible routes 
         Infeasible_Routes           = pd.concat([Infeasible_Routes_1,Infeasible_Routes_2,Infeasible_Routes_3,Infeasible_Routes_4,Infeasible_Routes_5,Infeasible_Routes_6])    
-        Infeasible_Passenger_Miles  = np.sum(np.array(Infeasible_Routes[['Distance (miles)']]))  
-        w_electrification[m_i]      = Infeasible_Passenger_Miles * CO2e_per_mile # only infeasbile routes since feasible routes dont pollute! 
-        w_o_electriciation[m_i]     =  np.sum( np.array(Routes_and_Temp_Mo[['Distance (miles)']]))* CO2e_per_mile 
+        Infeasible_Passenger_Miles  = np.sum(np.array(Infeasible_Routes[['Distance (miles)']])*np.array(Infeasible_Routes[['Passengers']])       )  
+        w_electrification[m_i]      = Infeasible_Passenger_Miles * CO2e_per_passenger_mile  # only infeasbile routes since feasible routes dont pollute! 
+        w_o_electriciation[m_i]     =  np.sum( np.array(Routes_and_Temp_Mo[['Distance (miles)']])*np.array(Routes_and_Temp_Mo[['Passengers']]))* CO2e_per_passenger_mile 
     
         # Infeasible Routes (Fuel) Energy Carrier Cost Per Seat Mile 
         ASM_jet_A             = np.sum(Infeasible_Routes['Distance (miles)'] * Infeasible_Routes['Passengers'])
@@ -612,20 +608,17 @@ def generate_flight_ops_map(Routes_and_Temp,Commercial_Batteries,aircraft,batter
     #================================================================================================================================================      
     # Monthly Emissions
     #================================================================================================================================================                  
-    colors              = px.colors.qualitative.Pastel 
-    sector_colors       = [colors[0],colors[2]] 
     month_names         = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']      
     fig_8               = go.Figure() 
     fig_8.add_trace(go.Scatter(x=month_names, y=w_electrification, name = 'Electric Aircraft in Fleet',
-                             line=dict(color=sector_colors[0], width=4)))  
+                             line=dict(color=colors[0], width=4)))  
     fig_8.add_trace(go.Scatter(x=month_names, y=w_o_electriciation, name='No Electric Aircraft in Fleet',
-                             line=dict(color=sector_colors[1], width=4)))   
+                             line=dict(color=colors[10], width=4)))   
     fig_8.update_layout( 
                       height           = 400, 
                       width            = 600, 
                       margin           = {'t':50,'l':0,'b':0,'r':0},
-                      yaxis_title_text ='CO2e (kg)', # yaxis label
-                      yaxis_range      = [0,10000000],
+                      yaxis_title_text ='CO2e (Ton)', # yaxis label 
                       font=dict(  size=font_size ),
                       legend=dict(
                           yanchor="top",
@@ -638,9 +631,9 @@ def generate_flight_ops_map(Routes_and_Temp,Commercial_Batteries,aircraft,batter
     #================================================================================================================================================   
     fig_9 = go.Figure()       
     fig_9.add_trace(go.Scatter(x=month_names, y=CASM_electric, name = 'Electric',
-                             line=dict(color=sector_colors[0], width=4)))  
+                             line=dict(color=colors[0], width=4)))  
     fig_9.add_trace(go.Scatter(x=month_names, y=CASM_jet_A, name='Jet-A',
-                             line=dict(color=sector_colors[1], width=4)))  
+                             line=dict(color=colors[10], width=4)))  
     fig_9.update_layout( 
                       height           = 400, 
                       width            = 600, 
