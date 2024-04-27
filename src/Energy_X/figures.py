@@ -137,7 +137,7 @@ def generate_EX_aircraft_flight_ops(Routes_and_Temp,TOGW,L_D,Max_P,system_V,weig
             lon = lons,
             lat = lats,
             mode = 'lines',
-            line = dict(width = 2,color = "aquamarine"),)) 
+            line = dict(width = 2,color = colors2[7]),)) 
  
     # Airports  
     fig_4.add_trace(go.Scattergeo( 
