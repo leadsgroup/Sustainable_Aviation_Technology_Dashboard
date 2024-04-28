@@ -186,7 +186,7 @@ app.layout = html.Div([
     ], style=tabs_styles),
     html.Div(id='tabs-content-inline'), 
     html.Div([    html.Br() ]),    
-    html.Div(["Contact Us"], className="bg-dark text-white h2 p-2"),
+    html.Div(["Contact Us"], className="bg-dark text-white-center h2 p-2"),
     dbc.Row([ 
          dbc.Col([ ],  width=1),
          dbc.Col([ 
