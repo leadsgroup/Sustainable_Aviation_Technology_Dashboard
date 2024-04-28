@@ -238,22 +238,20 @@ def generate_saf_flight_operations_plots(Flight_Ops,Commercial_SAF,feedstocks,se
     # Step 13: Randomize tracts in terms of crop area/usage then Recursively add rows until requied volume is met 
     Used_Feedstock        = feedstock_states.sample(frac = 1) 
     Used_Feedstock["Feedstock Usage"] =  np.ones(len(feedstock_states))
+    
     idx        = 0
-    total_vol  = 0  
-    while  total_vol<required_crop_area[0] :  
-            total_vol += Used_Feedstock.loc[Used_Feedstock.index[idx]]['Acres Harvested']
-            Used_Feedstock["Feedstock Usage"][Used_Feedstock.index[idx]] = 0.1 
-            idx += 1      
-            
-    #break_flag = True 
-    #while break_flag : 
-        #try: 
-            #total_vol += Used_Feedstock.loc[Used_Feedstock.index[idx]]['Acres Harvested']
-            #Used_Feedstock["Feedstock Usage"][Used_Feedstock.index[idx]] = 0.3
-            #break_flag = total_vol>required_crop_area[0] 
-            #idx += 1     
-        #except: 
-            #break_flag = False
+    total_vol  = 0   
+    if len(required_crop_area) == 0:
+        RCA  = 0
+    else:
+        RCA  = required_crop_area[0]  
+    available_tracts = len(Used_Feedstock)
+    while total_vol<RCA: 
+        total_vol += Used_Feedstock.loc[Used_Feedstock.index[idx]]['Acres Harvested']
+        Used_Feedstock["Feedstock_Usage"][Used_Feedstock.index[idx]] = 0.3
+        idx += 1      
+        if available_tracts == idx:
+            total_vol = 1E9  
      
  # Steps 14 and 15 Determine Cost per Seat Mile and Emissions  
     CASM_jet_A  = np.zeros(12) 
@@ -268,16 +266,22 @@ def generate_saf_flight_operations_plots(Flight_Ops,Commercial_SAF,feedstocks,se
     
         total_SAF_fuel_volume_required_mo   = np.sum(np.array(Flight_at_SAF_Airports_Using_SAF_Mo['Total Fuel Per Route (Gal)']))  
         SAF_volumes_mo                      = cumulative_fuel_use*total_SAF_fuel_volume_required_mo 
-        Jet_A_fuel_volume_required_mo       = np.sum(np.array(Non_SAF_Flights_Mo['Total Fuel Per Route (Gal)']))    
+        Jet_A_fuel_volume_required_mo       = np.sum(np.array(Non_SAF_Flights_Mo['Total Fuel Per Route (Gal)'])) 
         
-        
-        ASM_jet_A                           = np.sum(Non_SAF_Flights_Mo['Distance (miles)'] * Non_SAF_Flights_Mo['Passengers'])
-        Total_Fuel_Cost_jet_A               = np.sum(Non_SAF_Flights_Mo['Fuel Cost']) 
-        CASM_jet_A[m_i]                     = 100*Total_Fuel_Cost_jet_A/ASM_jet_A     
-                     
-        ASM_SAF                             = np.sum(Flight_at_SAF_Airports_Using_SAF_Mo['Distance (miles)'] * Flight_at_SAF_Airports_Using_SAF_Mo['Passengers']) 
-        Total_Fuel_Cost_SAF                 = np.sum(Flight_at_SAF_Airports_Using_SAF_Mo['Total Fuel Per Route (Gal)'] ) * SAF_dollars_per_gal 
-        CASM_SAF[m_i]                       = 100*Total_Fuel_Cost_SAF/ASM_SAF   
+        if len(Non_SAF_Flights_Mo ) == 0:
+            CASM_jet_A[m_i] = 0
+        else:
+            ASM_jet_A                           = np.sum(Non_SAF_Flights_Mo['Distance (miles)'] * Non_SAF_Flights_Mo['Passengers'])
+            Total_Fuel_Cost_jet_A               = np.sum(Non_SAF_Flights_Mo['Fuel Cost']) 
+            CASM_jet_A[m_i]                     = 100*Total_Fuel_Cost_jet_A/ASM_jet_A     
+       
+        if len(Flight_at_SAF_Airports_Using_SAF_Mo)  == 0:
+            CASM_SAF[m_i]   
+        else:    
+            ASM_SAF                             = np.sum(Flight_at_SAF_Airports_Using_SAF_Mo['Distance (miles)'] * Flight_at_SAF_Airports_Using_SAF_Mo['Passengers']) 
+            Total_Fuel_Cost_SAF                 = np.sum(Flight_at_SAF_Airports_Using_SAF_Mo['Total Fuel Per Route (Gal)'] ) * SAF_dollars_per_gal 
+            CASM_SAF[m_i]                       = 100*Total_Fuel_Cost_SAF/ASM_SAF   
+             
          
         w_SAF[m_i]   = np.sum(fuels_used['LCEF (gCO2e/MJ)']*fuels_used['Volumetric Energy Density (MJ/L)']*SAF_volumes_mo*gallons_to_Liters) +\
             Commercial_SAF.loc[0]['LCEF (gCO2e/MJ)']*Commercial_SAF.loc[0]['Volumetric Energy Density (MJ/L)']*np.sum(Jet_A_fuel_volume_required_mo)*gallons_to_Liters
