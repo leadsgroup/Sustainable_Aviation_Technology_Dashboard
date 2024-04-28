@@ -448,8 +448,8 @@ def render_content(tab):
         return dbc.Container([    
             html.Div([    html.Br() ]),              
             html.Div(["Future Electrochemical Cell (Battery) Impact Predictor"], className="bg-secondary text-white h4 p-2"), 
-            html.Div(["All-Electric Aircraft Parameterization"], className="text-sm-center h5"),
-            dbc.Row([  dbc.Col([ 
+            dbc.Row([  dbc.Col([  
+                html.Div(["Aircraft Parameterization"], className="text-sm-center h5"),                
                 Energy_X_aircraft_flight_ops_panel,  
                 html.Div([    html.Br() ]),                  
                 html.Div(["Battery Cell Parameterization"], className="text-sm-center h5"),                
@@ -496,6 +496,8 @@ def render_content(tab):
                        ],  width=6),                
                 
                 ]),  
+            html.Div([ html.Br() ]),
+            html.Div([    html.Br() ]), 
             dbc.Row([  dbc.Col([  
                                  dbc.Card([  
                                  dbc.Col([     

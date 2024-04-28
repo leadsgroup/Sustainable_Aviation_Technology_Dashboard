@@ -494,13 +494,13 @@ def generate_flight_ops_map(Routes_and_Temp,Commercial_Batteries,aircraft,batter
     fig_5.add_trace(go.Histogram(histfunc="sum",
                                x= Feasible_Routes['Distance (miles)'],
                                y = Feasible_Routes['Passengers'],
-                               name='All Electric', 
+                               name='All-Electric', 
                                xbins=dict(start=0, end=4000, size=500),
                                marker_color=colors[0],))
     fig_5.add_trace(go.Histogram(histfunc="sum",
                                x= Infeasible_Routes['Distance (miles)'],
                                y = Infeasible_Routes['Passengers'],
-                               name='Fossil Fuel',
+                               name='Fossil Fuels',
                                xbins=dict(start=0, end=4000, size=500),
                                marker_color=colors[10],)) 
     
@@ -512,7 +512,12 @@ def generate_flight_ops_map(Routes_and_Temp,Commercial_Batteries,aircraft,batter
                       width         = 600, 
                       margin        = {'t':0,'l':0,'b':0,'r':0},  
                       bargap        = 0.1,
-                      font=dict(  size=font_size ))   
+                      font=dict(  size=font_size ),
+                      legend=dict(
+                          yanchor="top",
+                          y=0.99,
+                          xanchor="center",
+                          x=0.85 ))   
 
     #================================================================================================================================================      
     # Busiest Airports 
@@ -539,7 +544,7 @@ def generate_flight_ops_map(Routes_and_Temp,Commercial_Batteries,aircraft,batter
     fig_7                       = go.Figure()
     Feasible_Passenger_Miles    = np.sum(np.array(Feasible_Routes['Passengers'])* np.array(Feasible_Routes['Distance (miles)']))
     Infeasible_Passenger_Miles  = np.sum(np.array(Infeasible_Routes[['Passengers']])* np.array(Infeasible_Routes[['Distance (miles)']])) 
-    labels                      = ["All Electric", "Fossil Fuel"] 
+    labels                      = ["All-Electric", "Fossil Fuels"] 
     fig_7.add_trace(go.Pie(labels=labels,
                          values=[Feasible_Passenger_Miles, Infeasible_Passenger_Miles],
                          marker_colors=[colors[0],colors[10]])) 
@@ -547,7 +552,12 @@ def generate_flight_ops_map(Routes_and_Temp,Commercial_Batteries,aircraft,batter
     fig_7.update_layout( height     = 400, 
                       width         = 600, 
                       margin        = {'t':50,'l':0,'b':0,'r':0},  
-                      font=dict(  size=font_size ))  
+                      font=dict(  size=font_size ),
+                      legend=dict(
+                          yanchor="top",
+                          y=0.99,
+                          xanchor="center",
+                          x=0.85 ))  
      
     #================================================================================================================================================      
     # Monthly Analysis
@@ -610,9 +620,9 @@ def generate_flight_ops_map(Routes_and_Temp,Commercial_Batteries,aircraft,batter
     #================================================================================================================================================                  
     month_names         = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']      
     fig_8               = go.Figure() 
-    fig_8.add_trace(go.Scatter(x=month_names, y=w_electrification, name = 'Electric Aircraft in Fleet',
+    fig_8.add_trace(go.Scatter(x=month_names, y=w_electrification, name = 'All-Electric Aircraft Fleet',
                              line=dict(color=colors[0], width=4)))  
-    fig_8.add_trace(go.Scatter(x=month_names, y=w_o_electriciation, name='No Electric Aircraft in Fleet',
+    fig_8.add_trace(go.Scatter(x=month_names, y=w_o_electriciation, name='Conventional Aircraft Fleet',
                              line=dict(color=colors[10], width=4)))   
     fig_8.update_layout( 
                       height           = 400, 
@@ -624,16 +634,16 @@ def generate_flight_ops_map(Routes_and_Temp,Commercial_Batteries,aircraft,batter
                           yanchor="top",
                           y=0.99,
                           xanchor="center",
-                          x=0.4 )) 
+                          x=0.2)) 
     
     #================================================================================================================================================      
     # Cost Per Seat Mile
     #================================================================================================================================================   
     fig_9 = go.Figure()       
-    fig_9.add_trace(go.Scatter(x=month_names, y=CASM_electric, name = 'Electric',
-                             line=dict(color=colors[0], width=4)))  
-    fig_9.add_trace(go.Scatter(x=month_names, y=CASM_jet_A, name='Jet-A',
+    fig_9.add_trace(go.Scatter(x=month_names, y=CASM_jet_A, name='Fossil Fuels',
                              line=dict(color=colors[10], width=4)))  
+    fig_9.add_trace(go.Scatter(x=month_names, y=CASM_electric, name = 'All-Electric',
+                             line=dict(color=colors[0], width=4)))  
     fig_9.update_layout( 
                       height           = 400, 
                       width            = 600, 
@@ -645,7 +655,7 @@ def generate_flight_ops_map(Routes_and_Temp,Commercial_Batteries,aircraft,batter
                           yanchor="top",
                           y=0.99,
                           xanchor="center",
-                          x=0.4 )) 
+                          x=0.85 )) 
     
     fig_4["layout"]["template"] = template   
     fig_5["layout"]["template"] = template         

@@ -374,7 +374,7 @@ def generate_saf_flight_operations_plots(Flight_Ops,Commercial_SAF,feedstocks,se
     fig_3.add_trace(go.Histogram(histfunc="sum",
                                x= Non_SAF_Flights['Distance (miles)'],
                                y = Non_SAF_Flights['Passengers'],
-                               name='Jet-A',
+                               name='Fossil Fuels',
                                xbins=dict(start=0, end=4000, size=500),
                                marker_color=colors[10],)) 
     
@@ -386,7 +386,12 @@ def generate_saf_flight_operations_plots(Flight_Ops,Commercial_SAF,feedstocks,se
                       width         = 600, 
                       margin        = {'t':0,'l':0,'b':0,'r':0},  
                       bargap        = 0.1,
-                      font=dict(  size=font_size ))   
+                      font=dict(  size=font_size ),
+                      legend=dict(
+                          yanchor="top",
+                          y=0.99,
+                          xanchor="center",
+                          x=0.85 ))   
     
     #================================================================================================================================================      
     # Busiest Airports 
@@ -414,14 +419,19 @@ def generate_saf_flight_operations_plots(Flight_Ops,Commercial_SAF,feedstocks,se
     sector_colors               = [colors[1],colors[10]]
     Feasible_Passenger_Miles    = np.sum(np.array(Flight_at_SAF_Airports_Using_SAF['Passengers'])* np.array(Flight_at_SAF_Airports_Using_SAF['Distance (miles)']))
     Infeasible_Passenger_Miles  = np.sum(np.array(Non_SAF_Flights[['Passengers']])* np.array(Non_SAF_Flights[['Distance (miles)']]))
-    labels                      = ["SAF", "Jet-A"] 
+    labels                      = ["SAF", "JFossil Fuels"] 
     fig_5.add_trace(go.Pie(labels=labels,
                          values=[Feasible_Passenger_Miles, Infeasible_Passenger_Miles],
                          marker_colors=sector_colors)) 
     fig_5.update_traces(hole=.4, hoverinfo="label+percent+name") 
     fig_5.update_layout( height     = 400,  
                       margin        = {'t':50,'l':0,'b':0,'r':0},  
-                      font=dict(  size=font_size ))  
+                      font=dict(  size=font_size ),
+                      legend=dict(
+                          yanchor="top",
+                          y=0.99,
+                          xanchor="center",
+                          x=0.85 ))  
     
     
     #================================================================================================================================================  
@@ -445,10 +455,10 @@ def generate_saf_flight_operations_plots(Flight_Ops,Commercial_SAF,feedstocks,se
     #================================================================================================================================================   
     fig_6 = go.Figure()       
     month_names         = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']    
+    fig_6.add_trace(go.Scatter(x=month_names, y=CASM_jet_A, name='Fossil Fuels',
+                             line=dict(color= colors[10], width=4))) 
     fig_6.add_trace(go.Scatter(x=month_names, y=CASM_SAF, name = 'SAF',
-                             line=dict(color= colors[1], width=4)))  
-    fig_6.add_trace(go.Scatter(x=month_names, y=CASM_jet_A, name='Jet-A',
-                             line=dict(color= colors[10], width=4)))  
+                             line=dict(color= colors[1], width=4)))   
     fig_6.update_layout( 
                       height           = 400, 
                       width            = 600, 
@@ -459,15 +469,15 @@ def generate_saf_flight_operations_plots(Flight_Ops,Commercial_SAF,feedstocks,se
                           yanchor="top",
                           y=0.99,
                           xanchor="center",
-                          x=0.4 )) 
+                          x=0.8 )) 
     #================================================================================================================================================      
     # Emissions Comparison 
     #================================================================================================================================================   
     month_names         = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']      
     fig_8               = go.Figure() 
-    fig_8.add_trace(go.Scatter(x=month_names, y=w_SAF*1e-6, name = 'Aircraft Using SAF in Fleet',
+    fig_8.add_trace(go.Scatter(x=month_names, y=w_SAF*1e-6, name = 'Fleet Using SAF',
                              line=dict(color=colors[1], width=4)))  
-    fig_8.add_trace(go.Scatter(x=month_names, y=w_o_SAF*1e-6, name='Aircraft Using Jet-A in Fleet',
+    fig_8.add_trace(go.Scatter(x=month_names, y=w_o_SAF*1e-6, name='Fleet Using Only Fossil Fuels',
                              line=dict(color=colors[10], width=4)))   
     fig_8.update_layout( 
                       height           = 400, 
@@ -479,12 +489,12 @@ def generate_saf_flight_operations_plots(Flight_Ops,Commercial_SAF,feedstocks,se
                           yanchor="top",
                           y=0.99,
                           xanchor="center",
-                          x=0.4 )) 
+                          x=0.8 )) 
     
     #================================================================================================================================================      
     # Life Cycle Analysis
     #================================================================================================================================================   
-    Jet_A_name = ["Only Jet-A"]*num_fuels
+    Jet_A_name = ["Only Fossil Fuels"]*num_fuels
     Jet_A_data = {'Cumulative Fuel': Jet_A_name,
             'Fuels' : selected_fuels,
             'Cumulative LCA Value'        : Jet_A_LCA_val,
