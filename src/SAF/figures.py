@@ -240,15 +240,15 @@ def generate_saf_flight_operations_plots(Flight_Ops,Commercial_SAF,feedstocks,se
     Used_Feedstock["Feedstock Usage"] =  np.ones(len(feedstock_states))
     
     idx        = 0
-    total_vol  = 0   
+    total_vol  = 0    
     if len(required_crop_area) == 0:
         RCA  = 0
     else:
         RCA  = required_crop_area[0]  
-    available_tracts = len(Used_Feedstock)
+    available_tracts =len(Used_Feedstock)
     while total_vol<RCA: 
         total_vol += Used_Feedstock.loc[Used_Feedstock.index[idx]]['Acres Harvested']
-        Used_Feedstock["Feedstock_Usage"][Used_Feedstock.index[idx]] = 0.3
+        Used_Feedstock["Feedstock Usage"][Used_Feedstock.index[idx]] = 0.1 
         idx += 1      
         if available_tracts == idx:
             total_vol = 1E9  
@@ -267,7 +267,7 @@ def generate_saf_flight_operations_plots(Flight_Ops,Commercial_SAF,feedstocks,se
         total_SAF_fuel_volume_required_mo   = np.sum(np.array(Flight_at_SAF_Airports_Using_SAF_Mo['Total Fuel Per Route (Gal)']))  
         SAF_volumes_mo                      = cumulative_fuel_use*total_SAF_fuel_volume_required_mo 
         Jet_A_fuel_volume_required_mo       = np.sum(np.array(Non_SAF_Flights_Mo['Total Fuel Per Route (Gal)'])) 
-        
+             
         if len(Non_SAF_Flights_Mo ) == 0:
             CASM_jet_A[m_i] = 0
         else:

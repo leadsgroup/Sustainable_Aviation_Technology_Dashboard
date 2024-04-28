@@ -626,7 +626,7 @@ def update_fuel_usage(fuel_selection_list_1,fuel_selection_list_2,switch_off):
     Input("fuel_usage", "value"),  
     Input("color-mode-switch", "value"), 
 ) 
-def update_fuel_usage(fuel_selection_list_1,fuel_selection_list_2,SAF_ratios,switch_off):     
+def update_fuel_usage_bar(fuel_selection_list_1,fuel_selection_list_2,SAF_ratios,switch_off):     
     selected_fuels = fuel_selection_list_1 + fuel_selection_list_2
     if len(selected_fuels) == 0: 
         return dash.no_update
