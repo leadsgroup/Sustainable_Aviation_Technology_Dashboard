@@ -419,7 +419,7 @@ def generate_saf_flight_operations_plots(Flight_Ops,Commercial_SAF,feedstocks,se
     sector_colors               = [colors[1],colors[10]]
     Feasible_Passenger_Miles    = np.sum(np.array(Flight_at_SAF_Airports_Using_SAF['Passengers'])* np.array(Flight_at_SAF_Airports_Using_SAF['Distance (miles)']))
     Infeasible_Passenger_Miles  = np.sum(np.array(Non_SAF_Flights[['Passengers']])* np.array(Non_SAF_Flights[['Distance (miles)']]))
-    labels                      = ["SAF", "JFossil Fuels"] 
+    labels                      = ["SAF", "Fossil Fuels"] 
     fig_5.add_trace(go.Pie(labels=labels,
                          values=[Feasible_Passenger_Miles, Infeasible_Passenger_Miles],
                          marker_colors=sector_colors)) 
@@ -463,7 +463,7 @@ def generate_saf_flight_operations_plots(Flight_Ops,Commercial_SAF,feedstocks,se
                       height           = 400, 
                       width            = 600, 
                       margin           = {'t':50,'l':0,'b':0,'r':0},
-                      yaxis_title_text ='Cost Per Seat Mile* (cents)', 
+                      yaxis_title_text ='Cost Per Seat Mile (cents)', 
                       font=dict(  size=font_size ),
                       legend=dict(
                           yanchor="top",

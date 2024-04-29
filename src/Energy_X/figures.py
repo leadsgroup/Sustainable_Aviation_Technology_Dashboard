@@ -330,7 +330,7 @@ def generate_EX_aircraft_flight_ops(Routes_and_Temp,TOGW,L_D,Max_P,system_V,weig
                       height           = 400, 
                       width            = 600, 
                       margin           = {'t':50,'l':0,'b':0,'r':0},
-                      yaxis_title_text ='Energy Cost Per Seat Mile (cents)', # yaxis label
+                      yaxis_title_text ='Cost Per Seat Mile (cents)', # yaxis label
                       yaxis_range      = [0,10],
                       font=dict(  size=font_size ),
                       legend=dict(

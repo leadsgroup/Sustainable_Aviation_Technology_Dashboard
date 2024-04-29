@@ -648,7 +648,7 @@ def generate_flight_ops_map(Routes_and_Temp,Commercial_Batteries,aircraft,batter
                       height           = 400, 
                       width            = 600, 
                       margin           = {'t':50,'l':0,'b':0,'r':0},
-                      yaxis_title_text ='Energy Cost Per Seat Mile (cents)', # yaxis label
+                      yaxis_title_text ='Cost Per Seat Mile (cents)', # yaxis label
                       yaxis_range      = [0,10],
                       font=dict(  size=font_size ),
                       legend=dict(
