@@ -32,7 +32,7 @@ SAT_data                   = pd.read_excel(technology_filename,sheet_name=['Comm
 Commercial_Batteries       = SAT_data['Commercial_Batteries'] 
 Electric_Motor_Development = SAT_data['Electric_Motor_Development']
 a                          = Commercial_Batteries['Brand']  
-b                          = Commercial_Batteries['Chemistry']
+b                          = Commercial_Batteries['Abbreviation']
 c                          = Commercial_Batteries['Model']
 d                          = a + ': ' + b + '-' + c 
 Commercial_Batteries["Battery Name"] = d     
@@ -524,7 +524,7 @@ def render_content(tab):
                        ])
                        ], className="border-0 bg-transparent")
                        
-                       ],  width=12),      
+                       ],  width=6),      
                 ]),               
         ])  
 
@@ -566,7 +566,7 @@ def update_sector_map(sector,bat_type,switch_off):
     SAT_data             = pd.read_excel(technology_filename,sheet_name=['Commercial_Batteries','Battery_Development']) 
     Commercial_Batteries = SAT_data['Commercial_Batteries'] 
     a                    = Commercial_Batteries['Brand']  
-    b                    = Commercial_Batteries['Chemistry']
+    b                    = Commercial_Batteries['Abbreviation']
     c                    = Commercial_Batteries['Model']
     d                    = a + ': ' + b + '-' + c 
     Commercial_Batteries["Battery Name"] = d     

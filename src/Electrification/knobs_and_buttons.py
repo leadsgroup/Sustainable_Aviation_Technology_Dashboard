@@ -46,8 +46,8 @@ def select_battery_x_axis_metrics(Commercial_Batteries):
     battery_x_axis = html.Div(
         [
             dbc.Label("X-Axis"),
-            dcc.Dropdown(list(Commercial_Batteries.columns.values)[4:18],
-                value = list(Commercial_Batteries.columns.values)[4:18][7],
+            dcc.Dropdown(list(Commercial_Batteries.columns.values)[5:19],
+                value = list(Commercial_Batteries.columns.values)[5:19][7],
                 placeholder = 'Select Indicator', 
                 disabled = False,
                 clearable=False,
@@ -65,8 +65,8 @@ def select_battery_y_axis_metrics(Commercial_Batteries):
     battery_y_axis = html.Div(
         [
             dbc.Label("Y-Axis"),
-            dcc.Dropdown(list(Commercial_Batteries.columns.values)[4:18],
-                value = list(Commercial_Batteries.columns.values)[4:18][9],
+            dcc.Dropdown(list(Commercial_Batteries.columns.values)[5:19],
+                value = list(Commercial_Batteries.columns.values)[5:19][9],
                 placeholder = 'Select Indicator', 
                 disabled = False,
                 clearable=False,
@@ -305,8 +305,8 @@ def select_flight_ops_electric_aircraft_battery(Commercial_Batteries):
         [ 
             dbc.Label("Battery Cell"),
             dcc.Dropdown(list(Commercial_Batteries['Battery Name'][1:].unique()),
-                value        = Commercial_Batteries['Battery Name'][13],
-                placeholder  = Commercial_Batteries['Battery Name'][13], 
+                value        = Commercial_Batteries['Battery Name'][36],
+                placeholder  = Commercial_Batteries['Battery Name'][36], 
                 disabled     = False,
                 clearable=False,
                 style        = {'display': True, 'color': 'black'},
@@ -341,8 +341,8 @@ def select_flight_ops_electric_aircraft_batt_mass_frac():
     battery_mass_fraction = html.Div(
         [
             dbc.Label("Battery Mass Fraction (%)"),
-            dcc.Slider(20, 100, 5,
-                value= 50,
+            dcc.Slider(10, 90, 10,
+                value= 30,
                 id="battery_mass_fraction", 
             ),
         ],

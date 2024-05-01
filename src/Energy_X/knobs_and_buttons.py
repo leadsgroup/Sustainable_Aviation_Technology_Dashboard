@@ -125,9 +125,9 @@ def select_flight_ops_BDL_batt_mass_frac():
     
     battery_mass_fraction = html.Div(
         [
-            dbc.Label("Battery Mass Fraction (to MOTW)"),
-            dcc.Slider(10, 100, 10,
-                value= 50,
+            dbc.Label("Battery Mass Fraction (of MOTW)"),
+            dcc.Slider(10, 90, 10,
+                value= 30,
                 id="EX_battery_mass_fraction", 
             ),
         ],
