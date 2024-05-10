@@ -165,8 +165,8 @@ def select_BDL_cost_of_electricity():
     charging_cost = html.Div(
         [
             dbc.Label("Cost of Electricity ($/kWh)"),
-            dcc.Slider(50, 500, 50,
-                value=150,
+            dcc.Slider(0.1, 1, 0.1,
+                value=0.3,
                 id="EX_aircraft_charging_cost", 
             ),
         ],

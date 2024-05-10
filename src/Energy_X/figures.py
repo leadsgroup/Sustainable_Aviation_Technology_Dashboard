@@ -1,12 +1,11 @@
-
 import plotly.express as px
 import plotly.graph_objects as go
 import plotly.io as pio
 import pandas as pd
-import numpy as np   
-from urllib.request import urlopen
+import numpy as np    
 import plotly.graph_objects as go
 import json  
+import os 
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Flight Operations Plots 
@@ -14,11 +13,11 @@ import json
  
 def generate_US_EX_temperature_map(US_Temperature_F,month_no,switch_off):  
     template             = pio.templates["minty"] if switch_off else pio.templates["minty_dark"]    
-    font_size            = 16  
-    
-    with urlopen('https://raw.githubusercontent.com/plotly/datasets/master/geojson-counties-fips.json') as response:
-        counties = json.load(response)     
-    
+    font_size            = 16   
+    separator            = os.path.sep
+    file_path            = '..'+ separator +'Data'+ separator +'US_County'+ separator +'counties_fips.json'
+    f = open(file_path) 
+    counties = json.load(f) 
     month = list(US_Temperature_F.columns.values)[3:][month_no] 
     fips  = list(US_Temperature_F['FIPS'])  
     US_Temperature_F['FIPS'] = ["%05d" % i for i in fips] 
@@ -63,7 +62,7 @@ def generate_EX_aircraft_flight_ops(Routes_and_Temp,TOGW,L_D,Max_P,system_V,weig
     i_max                   = (capacity*cell_C_max) # amps   
     Min_Temp                = cell_Temp[0]
     Max_Temp                = cell_Temp[1]
-    I_bat                   = P_max/ V_bat
+    I_bat                   = P_max/V_bat
     n_series                = V_bat/V_cell
     W_bat                   = (weight_fraction/100) * W_0
     E_bat                   = W_bat * e_cell  
@@ -315,7 +314,7 @@ def generate_EX_aircraft_flight_ops(Routes_and_Temp,TOGW,L_D,Max_P,system_V,weig
         else: 
             electric_flight_passengers = Feasible_Routes['E_Passengers']  
             joule_to_kWh               = 2.77778e-7
-            Total_Fuel_Cost_electric   = (E_bat*joule_to_kWh*cost_of_electricity)  
+            Total_Fuel_Cost_electric   = sum((E_bat*joule_to_kWh*cost_of_electricity) * np.array(Feasible_Routes['No of Flights Per Month']))
             ASM_electric               = sum(Feasible_Routes['Distance (miles)'] * electric_flight_passengers)
             CASM_electric[m_i]         = 100*Total_Fuel_Cost_electric/ASM_electric    
                
@@ -324,15 +323,16 @@ def generate_EX_aircraft_flight_ops(Routes_and_Temp,TOGW,L_D,Max_P,system_V,weig
     #================================================================================================================================================                  
     month_names         = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']      
     fig_8               = go.Figure() 
-    fig_8.add_trace(go.Scatter(x=month_names, y=w_electrification, name = 'All-Electric Aircraft Fleet',
+    fig_8.add_trace(go.Scatter(x=month_names, y=w_electrification, name = 'Fleet with All-Electric Aircraft',
                              line=dict(color=colors2[7], width=4)))  
-    fig_8.add_trace(go.Scatter(x=month_names, y=w_o_electriciation, name='Conventional Aircraft Fleet',
+    fig_8.add_trace(go.Scatter(x=month_names, y=w_o_electriciation, name='All Conventional Aircraft Fleet',
                              line=dict(color=colors[10], width=4)))   
     fig_8.update_layout( 
                       height           = 400, 
                       width            = 600, 
                       margin           = {'t':50,'l':0,'b':0,'r':0},
                       yaxis_title_text ='CO2e (Ton)', # yaxis label 
+                      yaxis_range      = [0.5E6,3E6],
                       font=dict(  size=font_size ),
                       legend=dict(
                           yanchor="top",

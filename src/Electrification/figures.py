@@ -2,9 +2,9 @@ import plotly.express as px
 import plotly.graph_objects as go
 import plotly.io as pio
 import pandas as pd
-import numpy as np   
-from urllib.request import urlopen
-import json  
+import numpy as np    
+import json
+import os 
 pd.options.mode.chained_assignment = None 
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -13,7 +13,7 @@ pd.options.mode.chained_assignment = None
 def generate_battery_scatter_plot(Commercial_Batteries,selected_brand,selected_chemistry,selected_x_axis,selected_y_axis,switch_off): 
     template             = pio.templates["minty"] if switch_off else pio.templates["minty_dark"]  
     unique_brands        = list(Commercial_Batteries['Brand'][1:].unique())
-    unique_chemistries    = list(Commercial_Batteries['Chemistry'][1:].unique())
+    unique_chemistries   = list(Commercial_Batteries['Chemistry'][1:].unique())
     marker_size          = 15
     opacity_ratio        = 0.8 if switch_off else 1.0
     font_size            = 16 
@@ -263,11 +263,12 @@ def generate_battery_dev_map(Battery_Development,selected_sector,selected_type,s
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
  
 def generate_US_bat_temperature_map(US_Temperature_F,month_no,switch_off):  
-    template             = pio.templates["minty"] if switch_off else pio.templates["minty_dark"]    
-    font_size            = 16  
-    
-    with urlopen('https://raw.githubusercontent.com/plotly/datasets/master/geojson-counties-fips.json') as response:
-        counties = json.load(response) 
+    template  = pio.templates["minty"] if switch_off else pio.templates["minty_dark"]    
+    font_size = 16
+    separator = os.path.sep
+    file_path = '..'+ separator +'Data'+ separator +'US_County'+ separator +'counties_fips.json'
+    f = open(file_path) 
+    counties = json.load(f) 
     month = list(US_Temperature_F.columns.values)[6:18][month_no]  
     US_Temperature_F['FIPS'] = US_Temperature_F['FIPS'].apply('{:0>5}'.format)
     us_temperature_map= px.choropleth(US_Temperature_F, geojson=counties, locations='FIPS', color = month,
@@ -634,7 +635,7 @@ def generate_flight_ops_map(Routes_and_Temp,Commercial_Batteries,aircraft,batter
         else: 
             electric_flight_passengers = Feasible_Routes['E_Passengers']  
             joule_to_kWh               = 2.77778e-7
-            Total_Fuel_Cost_electric   = (E_bat*joule_to_kWh*cost_of_electricity)  
+            Total_Fuel_Cost_electric   = sum( (E_bat*joule_to_kWh*cost_of_electricity) * np.array(Feasible_Routes['No of Flights Per Month']) )
             ASM_electric               = sum(Feasible_Routes['Distance (miles)'] * electric_flight_passengers)
             CASM_electric[m_i]         = 100*Total_Fuel_Cost_electric/ASM_electric         
                
@@ -673,7 +674,7 @@ def generate_flight_ops_map(Routes_and_Temp,Commercial_Batteries,aircraft,batter
                       width            = 600, 
                       margin           = {'t':50,'l':0,'b':0,'r':0},
                       yaxis_title_text ='Cost Per Seat Mile (cents)', # yaxis label
-                      yaxis_range      = [0,10],
+                      yaxis_range      = [0,30],
                       font=dict(  size=font_size ),
                       legend=dict(
                           yanchor="top",

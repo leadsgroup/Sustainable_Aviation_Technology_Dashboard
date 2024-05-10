@@ -19,10 +19,8 @@ from SAF.control_panels                        import *
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Data
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-ospath                     = os.path.abspath(__file__)
-separator                  = os.path.sep
-
+# --------------------------------------------------------------------------------------------------------------------------------------------------- 
+separator                  = os.path.sep 
 technology_filename        = '..' + separator + 'Data'  + separator + 'Technology' + separator +  'Technology_Data.xlsx'
 crops_filename             = '..' + separator + 'Data'  + separator +  'Crops'     + separator + 'All_Crops_2017.xlsx' 
 routes_filename            = '..' + separator + 'Data'  + separator + 'Air_Travel' + separator + 'American_Airlines_Flight_Ops_and_Climate.xlsx'

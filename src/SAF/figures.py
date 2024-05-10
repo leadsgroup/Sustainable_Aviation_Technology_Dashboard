@@ -4,7 +4,8 @@ import plotly.io as pio
 import pandas as pd
 import numpy as np   
 from urllib.request import urlopen
-import json   
+import json    
+import os 
      
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # SAF Plots 
@@ -159,9 +160,10 @@ def generate_saf_flight_operations_plots(Flight_Ops,Commercial_SAF,feedstocks,se
     map_style            = None if switch_off else 'dark'     
     font_size            = 16  
     mapbox_access_token  = "pk.eyJ1IjoibWFjbGFya2UiLCJhIjoiY2xyanpiNHN6MDhsYTJqb3h6YmJjY2w5MyJ9.pQed7pZ9CnJL-mtqm1X8DQ"
-    with urlopen('https://raw.githubusercontent.com/plotly/datasets/master/geojson-counties-fips.json') as response:
-        counties = json.load(response)   
-         
+    separator = os.path.sep
+    file_path = '..'+ separator +'Data'+ separator +'US_County'+ separator +'counties_fips.json'
+    f = open(file_path) 
+    counties = json.load(f) 
     # Step 1: compute the percentages of different types of fuels used 
     fuel_percentages_list = [0]
     fuel_percentages_list += percent_fuel_use
@@ -465,6 +467,7 @@ def generate_saf_flight_operations_plots(Flight_Ops,Commercial_SAF,feedstocks,se
                       margin           = {'t':50,'l':0,'b':0,'r':0},
                       yaxis_title_text ='Cost Per Seat Mile (cents)', 
                       font=dict(  size=font_size ),
+                      yaxis_range      = [0,20],
                       legend=dict(
                           yanchor="top",
                           y=0.99,
@@ -485,6 +488,7 @@ def generate_saf_flight_operations_plots(Flight_Ops,Commercial_SAF,feedstocks,se
                       margin           = {'t':50,'l':0,'b':0,'r':0},
                       yaxis_title_text ='CO2e (Ton)', # yaxis label
                       font=dict(  size=font_size ),
+                      yaxis_range      = [1E6,3E6],
                       legend=dict(
                           yanchor="top",
                           y=0.99,
